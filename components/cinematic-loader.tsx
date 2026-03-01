@@ -3,19 +3,29 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { useSound } from "@/hooks/use-sound"
 
+// ---------- CONSTANTS ----------
+const TOTAL_DURATION = 6000     // full loading duration in ms
+const FADE_IN_MS = 500          // how long the screen fades in
+const FADE_OUT_MS = 800         // how long the exit fade takes
+const AUDIO_FADE_MS = 600       // smooth audio fade-out length
+const AUDIO_VOLUME = 0.5        // peak audio volume
+
+// Progress easing: slow 0-60% over ~4 s, then fast 60-100% over ~2 s
+const SLOW_PHASE_END = 4000     // first 4 seconds
+const SLOW_PHASE_TARGET = 60    // reach 60 % at 4 s
+const FAST_PHASE_DURATION = TOTAL_DURATION - SLOW_PHASE_END - 200 // leave 200 ms buffer
+const FAST_PHASE_TARGET = 40    // remaining 40 %
+
 interface CinematicLoaderProps {
   /** The selected mode label shown during loading */
   modeLabel: string
   /** Called when the loading sequence is complete */
   onComplete: () => void
-  /** Duration in ms before triggering onComplete (default: 2400) */
-  duration?: number
 }
 
 export function CinematicLoader({
   modeLabel,
   onComplete,
-  duration = 2400,
 }: CinematicLoaderProps) {
   const [phase, setPhase] = useState<"enter" | "active" | "exit">("enter")
   const [progress, setProgress] = useState(0)
@@ -23,7 +33,7 @@ export function CinematicLoader({
   const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const { enabled: soundEnabled } = useSound()
 
-  // Clean up fade interval on unmount
+  // ---- helpers ----
   const clearFade = useCallback(() => {
     if (fadeRef.current) {
       clearInterval(fadeRef.current)
@@ -31,13 +41,12 @@ export function CinematicLoader({
     }
   }, [])
 
-  // Fade the loading audio out smoothly
   const fadeOutAudio = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
     clearFade()
-    const steps = 20
-    const stepTime = 400 / steps
+    const steps = 25
+    const stepTime = AUDIO_FADE_MS / steps
     const volumeStep = audio.volume / steps
     fadeRef.current = setInterval(() => {
       if (!audioRef.current || audioRef.current.volume - volumeStep <= 0.005) {
@@ -47,19 +56,16 @@ export function CinematicLoader({
         }
         clearFade()
       } else {
-        audioRef.current.volume = Math.max(
-          audioRef.current.volume - volumeStep,
-          0
-        )
+        audioRef.current.volume = Math.max(audioRef.current.volume - volumeStep, 0)
       }
     }, stepTime)
   }, [clearFade])
 
-  // Boot audio
+  // ---- audio lifecycle ----
   useEffect(() => {
     if (!soundEnabled) return
-    const audio = new Audio("/audio/loading-sound.mp3")
-    audio.volume = 0.45
+    const audio = new Audio("/audio/loading-page.mp3")
+    audio.volume = AUDIO_VOLUME
     audio.preload = "auto"
     audioRef.current = audio
     audio.play().catch(() => {})
@@ -71,41 +77,56 @@ export function CinematicLoader({
     }
   }, [soundEnabled, clearFade])
 
-  // Sequence: enter -> active -> exit -> onComplete
+  // ---- phase sequencing ----
   useEffect(() => {
-    // Phase: enter (fade-in takes ~400ms)
-    const enterTimer = setTimeout(() => setPhase("active"), 400)
+    // enter -> active
+    const enterTimer = setTimeout(() => setPhase("active"), FADE_IN_MS)
 
-    // Phase: exit starts ~600ms before duration ends
+    // active -> exit  (start fading out before the end)
     const exitTimer = setTimeout(() => {
       setPhase("exit")
       fadeOutAudio()
-    }, duration - 600)
+    }, TOTAL_DURATION - FADE_OUT_MS)
 
-    // Fire onComplete after full duration
-    const completeTimer = setTimeout(onComplete, duration)
+    // fire completion callback after full duration
+    const completeTimer = setTimeout(onComplete, TOTAL_DURATION)
 
     return () => {
       clearTimeout(enterTimer)
       clearTimeout(exitTimer)
       clearTimeout(completeTimer)
     }
-  }, [duration, onComplete, fadeOutAudio])
+  }, [onComplete, fadeOutAudio])
 
-  // Progress bar animation
+  // ---- custom eased progress bar ----
   useEffect(() => {
     const start = Date.now()
-    const end = duration - 200 // finish the bar slightly early for polish
+
     const tick = () => {
       const elapsed = Date.now() - start
-      const pct = Math.min(elapsed / end, 1)
-      // Ease-out cubic for satisfying deceleration
-      const eased = 1 - Math.pow(1 - pct, 3)
-      setProgress(eased * 100)
-      if (pct < 1) requestAnimationFrame(tick)
+
+      let value: number
+
+      if (elapsed <= SLOW_PHASE_END) {
+        // Slow phase: ease-out cubic  0 -> 60 %
+        const t = Math.min(elapsed / SLOW_PHASE_END, 1)
+        const eased = 1 - Math.pow(1 - t, 3)
+        value = eased * SLOW_PHASE_TARGET
+      } else {
+        // Fast phase: ease-in-out quad  60 -> 100 %
+        const fastElapsed = elapsed - SLOW_PHASE_END
+        const t = Math.min(fastElapsed / FAST_PHASE_DURATION, 1)
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+        value = SLOW_PHASE_TARGET + eased * FAST_PHASE_TARGET
+      }
+
+      setProgress(Math.min(value, 100))
+      if (elapsed < TOTAL_DURATION - 200) requestAnimationFrame(tick)
+      else setProgress(100)
     }
+
     requestAnimationFrame(tick)
-  }, [duration])
+  }, [])
 
   // Random particles for cinematic depth
   const particles = useMemo(

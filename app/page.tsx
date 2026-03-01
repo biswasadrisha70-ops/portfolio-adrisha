@@ -51,11 +51,9 @@ export default function Home() {
     // destination route once the pages exist (e.g. router.push).
     setTransitioning(true)
     setTimeout(() => {
-      // Placeholder: go back to mode select.  Swap this for your
-      // actual navigation once the destination pages are built.
       setScreen("mode")
       setTransitioning(false)
-    }, 400)
+    }, 600)
   }, [])
 
   return (
