@@ -33,6 +33,7 @@ const roles = [
     description: "Discovering new terrain",
     Icon: ExplorerIcon,
     code: "XPL-03",
+    portrait: "/images/explorer-portrait.png",
   },
   {
     id: "student",
