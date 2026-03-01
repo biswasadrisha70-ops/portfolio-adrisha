@@ -45,7 +45,11 @@ const roles = [
   },
 ] as const
 
-export function CharacterSelect() {
+interface CharacterSelectProps {
+  onRoleConfirmed?: (role: string) => void
+}
+
+export function CharacterSelect({ onRoleConfirmed }: CharacterSelectProps) {
   const [mounted, setMounted] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -175,14 +179,34 @@ export function CharacterSelect() {
         })}
       </div>
 
-      {/* Bottom instruction */}
-      <p
-        className={`font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40 transition-all duration-700 delay-700 ${
+      {/* Bottom instruction / proceed */}
+      <div
+        className={`flex flex-col items-center gap-4 transition-all duration-700 delay-700 ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
       >
-        {selectedId ? "Role selected - access granted" : "Select a role to proceed"}
-      </p>
+        {selectedId ? (
+          <button
+            onClick={() => {
+              const role = roles.find((r) => r.id === selectedId)
+              if (role && onRoleConfirmed) onRoleConfirmed(role.label)
+            }}
+            className="group relative cursor-pointer border border-primary/50 bg-primary/10 px-10 py-3.5 font-mono text-xs uppercase tracking-[0.3em] text-primary transition-all duration-500 hover:border-primary hover:bg-primary/20 hover:shadow-[0_0_30px_rgba(56,189,156,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            aria-label="Proceed to mode selection"
+          >
+            <span className="absolute inset-0 -z-10 animate-pulse bg-primary/5 blur-xl transition-all duration-500 group-hover:bg-primary/10 group-hover:blur-2xl" />
+            Proceed
+            <span className="absolute -left-px -top-px h-3 w-3 border-l border-t border-primary" />
+            <span className="absolute -right-px -top-px h-3 w-3 border-r border-t border-primary" />
+            <span className="absolute -bottom-px -left-px h-3 w-3 border-b border-l border-primary" />
+            <span className="absolute -bottom-px -right-px h-3 w-3 border-b border-r border-primary" />
+          </button>
+        ) : (
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40">
+            Select a role to proceed
+          </p>
+        )}
+      </div>
     </div>
   )
 }
