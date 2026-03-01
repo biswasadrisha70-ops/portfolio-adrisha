@@ -25,6 +25,7 @@ const roles = [
     description: "Collaborating on the mission",
     Icon: TeammateIcon,
     code: "TMT-02",
+    portrait: "/images/teammate-portrait.png",
   },
   {
     id: "explorer",
