@@ -9,6 +9,7 @@ import {
   ExplorerIcon,
   StudentIcon,
 } from "@/components/role-icons"
+import { useSound } from "@/hooks/use-sound"
 
 const roles = [
   {
@@ -52,6 +53,7 @@ interface CharacterSelectProps {
 export function CharacterSelect({ onRoleConfirmed }: CharacterSelectProps) {
   const [mounted, setMounted] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const { playClick } = useSound()
 
   useEffect(() => {
     setMounted(true)
@@ -100,7 +102,10 @@ export function CharacterSelect({ onRoleConfirmed }: CharacterSelectProps) {
           return (
             <TiltCard key={role.id}>
               <button
-                onClick={() => setSelectedId(isSelected ? null : role.id)}
+                onClick={() => {
+                  playClick()
+                  setSelectedId(isSelected ? null : role.id)
+                }}
                 className={`group relative flex w-full cursor-pointer flex-col items-center gap-6 overflow-hidden rounded-lg border bg-card/50 px-6 py-10 text-center backdrop-blur-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   isSelected
                     ? "border-primary/60 bg-primary/5 shadow-[0_0_40px_-10px] shadow-primary/20"
@@ -188,6 +193,7 @@ export function CharacterSelect({ onRoleConfirmed }: CharacterSelectProps) {
         {selectedId ? (
           <button
             onClick={() => {
+              playClick()
               const role = roles.find((r) => r.id === selectedId)
               if (role && onRoleConfirmed) onRoleConfirmed(role.label)
             }}

@@ -6,6 +6,8 @@ import { ModeSelect } from "@/components/mode-select"
 import { StatusBar } from "@/components/status-bar"
 import { Scanlines } from "@/components/scanlines"
 import { GridBackground } from "@/components/grid-background"
+import { SoundToggle } from "@/components/sound-toggle"
+import { SoundProvider } from "@/hooks/use-sound"
 
 export default function Home() {
   const [screen, setScreen] = useState<"character" | "mode">("character")
@@ -31,36 +33,41 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-background px-4 py-20 sm:px-6">
-      {/* Background layers */}
-      <GridBackground />
-      <Scanlines />
+    <SoundProvider>
+      <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-background px-4 py-20 sm:px-6">
+        {/* Background layers */}
+        <GridBackground />
+        <Scanlines />
 
-      {/* Radial vignette */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-10"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)",
-        }}
-      />
+        {/* Sound toggle */}
+        <SoundToggle />
 
-      {/* Screen content with fade transition */}
-      <div
-        className={`relative z-20 w-full transition-all duration-500 ease-in-out ${
-          transitioning ? "scale-[0.98] opacity-0" : "scale-100 opacity-100"
-        }`}
-      >
-        {screen === "character" ? (
-          <CharacterSelect onRoleConfirmed={handleRoleConfirmed} />
-        ) : (
-          <ModeSelect selectedRole={selectedRole} onBack={handleBack} />
-        )}
-      </div>
+        {/* Radial vignette */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-10"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)",
+          }}
+        />
 
-      {/* Status bar */}
-      <StatusBar />
-    </main>
+        {/* Screen content with fade transition */}
+        <div
+          className={`relative z-20 w-full transition-all duration-500 ease-in-out ${
+            transitioning ? "scale-[0.98] opacity-0" : "scale-100 opacity-100"
+          }`}
+        >
+          {screen === "character" ? (
+            <CharacterSelect onRoleConfirmed={handleRoleConfirmed} />
+          ) : (
+            <ModeSelect selectedRole={selectedRole} onBack={handleBack} />
+          )}
+        </div>
+
+        {/* Status bar */}
+        <StatusBar />
+      </main>
+    </SoundProvider>
   )
 }

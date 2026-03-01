@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import Image from "next/image"
 import { TiltCard } from "@/components/tilt-card"
+import { useSound } from "@/hooks/use-sound"
 
 const modes = [
   {
@@ -29,6 +30,27 @@ interface ModeSelectProps {
 export function ModeSelect({ selectedRole, onBack }: ModeSelectProps) {
   const [mounted, setMounted] = useState(false)
   const [selectedMode, setSelectedMode] = useState<string | null>(null)
+  const { playClick, playTactical, playCombat } = useSound()
+
+  const handleModeSelect = useCallback(
+    (modeId: string) => {
+      const isAlreadySelected = selectedMode === modeId
+      if (isAlreadySelected) {
+        playClick()
+        setSelectedMode(null)
+      } else {
+        if (modeId === "tactical") playTactical()
+        else if (modeId === "combat") playCombat()
+        setSelectedMode(modeId)
+      }
+    },
+    [selectedMode, playClick, playTactical, playCombat]
+  )
+
+  const handleBack = useCallback(() => {
+    playClick()
+    onBack()
+  }, [playClick, onBack])
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 50)
@@ -125,7 +147,7 @@ export function ModeSelect({ selectedRole, onBack }: ModeSelectProps) {
 
       {/* Back button */}
       <button
-        onClick={onBack}
+        onClick={handleBack}
         className={`group absolute left-6 top-6 z-30 flex cursor-pointer items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/60 transition-all duration-500 hover:text-danger sm:left-10 sm:top-10 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
@@ -215,7 +237,7 @@ export function ModeSelect({ selectedRole, onBack }: ModeSelectProps) {
             return (
               <TiltCard key={mode.id} glowColor="var(--danger)">
                 <button
-                  onClick={() => setSelectedMode(isSelected ? null : mode.id)}
+                  onClick={() => handleModeSelect(mode.id)}
                   className={`group relative flex w-full cursor-pointer flex-col items-center gap-5 overflow-hidden rounded-lg border text-center backdrop-blur-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                     isSelected
                       ? "border-danger/60 bg-danger/[0.06] shadow-[0_0_80px_-10px] shadow-danger-glow/30"
