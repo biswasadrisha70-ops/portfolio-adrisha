@@ -319,3 +319,18 @@
 .animate-aura-particle {
   animation: aura-particle-drift 3.5s ease-in-out infinite;
 }
+
+/* === Avatar Idle Float === */
+
+@keyframes avatar-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-avatar-float {
+  animation: avatar-float 5s ease-in-out infinite;
+}
