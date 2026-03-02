@@ -18,15 +18,15 @@ interface TacticalModule {
 }
 
 const MODULES: TacticalModule[] = [
-  { id: "profile",   label: "Agent Profile",     icon: User,      angle: 270 },  // top
-  { id: "abilities", label: "Core Abilities",     icon: Crosshair, angle: 342 },  // upper-right
-  { id: "missions",  label: "Mission Log",        icon: FileText,  angle: 54  },  // lower-right
-  { id: "squads",    label: "Squads & Alliances", icon: Users,     angle: 126 },  // lower-left
-  { id: "contact",   label: "Contact Channels",   icon: Radio,     angle: 198 },  // upper-left
+  { id: "profile",   label: "Agent Profile",     icon: User,      angle: 270 },  // top-center (12 o'clock)
+  { id: "abilities", label: "Core Abilities",     icon: Crosshair, angle: 342 },  // upper-right (~2 o'clock)
+  { id: "missions",  label: "Mission Log",        icon: FileText,  angle: 54  },  // lower-right (~4 o'clock)
+  { id: "squads",    label: "Squads & Alliances", icon: Users,     angle: 126 },  // lower-left  (~8 o'clock)
+  { id: "contact",   label: "Contact Channels",   icon: Radio,     angle: 198 },  // upper-left  (~10 o'clock)
 ]
 
-// Pentagon orbit radius (~65% of half-viewport, capped for screens)
-const ORBIT_RADIUS = 240
+// Orbit radius scaled to ~65% from center; bumped up for larger avatar
+const ORBIT_RADIUS = 280
 
 // ===================== CURSOR GLOW HOOK =====================
 
@@ -271,13 +271,13 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           mounted ? "scale-100 opacity-100" : "scale-[0.85] opacity-0"
         }`}
       >
-        {/* Decorative HUD ring */}
+        {/* Decorative HUD ring (slightly larger than icon orbit) */}
         <div
           aria-hidden="true"
           className="animate-loader-spin-slow pointer-events-none absolute rounded-full"
           style={{
-            width: `${ORBIT_RADIUS * 2 + 80}px`,
-            height: `${ORBIT_RADIUS * 2 + 80}px`,
+            width: `${ORBIT_RADIUS * 2 + 100}px`,
+            height: `${ORBIT_RADIUS * 2 + 100}px`,
             border: "1px solid rgba(180,50,50,0.035)",
             borderTopColor: "rgba(180,50,50,0.1)",
           }}
@@ -286,8 +286,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           aria-hidden="true"
           className="animate-loader-spin-reverse-slow pointer-events-none absolute rounded-full"
           style={{
-            width: `${ORBIT_RADIUS * 2 + 30}px`,
-            height: `${ORBIT_RADIUS * 2 + 30}px`,
+            width: `${ORBIT_RADIUS * 2 + 50}px`,
+            height: `${ORBIT_RADIUS * 2 + 50}px`,
             border: "1px dashed rgba(180,50,50,0.02)",
             borderBottomColor: "rgba(180,50,50,0.06)",
           }}
@@ -299,11 +299,11 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           aria-hidden="true"
           className="animate-aura-pulse pointer-events-none absolute"
           style={{
-            width: "500px",
-            height: "650px",
+            width: "600px",
+            height: "780px",
             background:
               "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(150,25,25,0.18) 0%, rgba(120,15,15,0.06) 40%, transparent 65%)",
-            filter: "blur(55px)",
+            filter: "blur(60px)",
           }}
         />
         {/* Core layer */}
@@ -311,11 +311,11 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           aria-hidden="true"
           className="animate-aura-pulse-delayed pointer-events-none absolute"
           style={{
-            width: "340px",
-            height: "520px",
+            width: "420px",
+            height: "640px",
             background:
               "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(180,40,40,0.14) 0%, transparent 55%)",
-            filter: "blur(40px)",
+            filter: "blur(45px)",
           }}
         />
         {/* Tight rim layer */}
@@ -323,11 +323,11 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           aria-hidden="true"
           className="animate-aura-pulse pointer-events-none absolute"
           style={{
-            width: "240px",
-            height: "420px",
+            width: "300px",
+            height: "520px",
             background:
               "radial-gradient(ellipse 100% 100% at 50% 55%, rgba(200,50,50,0.08) 0%, transparent 50%)",
-            filter: "blur(25px)",
+            filter: "blur(28px)",
             animationDelay: "0.8s",
           }}
         />
@@ -336,8 +336,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         <div
           className="animate-avatar-float relative"
           style={{
-            width: "clamp(340px, 42vw, 540px)",
-            height: "58vh",
+            width: "clamp(380px, 48vw, 640px)",
+            height: "67vh",
           }}
         >
           <Image
@@ -351,11 +351,11 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           {/* Floor glow */}
           <div
             aria-hidden="true"
-            className="absolute -bottom-4 left-1/2 h-8 w-52 -translate-x-1/2"
+            className="absolute -bottom-6 left-1/2 h-10 w-72 -translate-x-1/2"
             style={{
               background:
-                "radial-gradient(ellipse at center, rgba(180,40,40,0.25) 0%, transparent 70%)",
-              filter: "blur(14px)",
+                "radial-gradient(ellipse at center, rgba(180,40,40,0.3) 0%, transparent 70%)",
+              filter: "blur(18px)",
             }}
           />
         </div>
@@ -364,7 +364,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         {MODULES.map((mod, i) => {
           const Icon = mod.icon
           const isHovered = hoveredIcon === mod.id
-          const rad = ((mod.angle - 90) * Math.PI) / 180
+          // Convert angle to radians (CSS 0° = right, so subtract 90 to make 0° = top)
+          const rad = (mod.angle * Math.PI) / 180
           const x = Math.cos(rad) * ORBIT_RADIUS
           const y = Math.sin(rad) * ORBIT_RADIUS
 
@@ -375,7 +376,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
                 mounted ? "scale-100 opacity-100" : "scale-75 opacity-0"
               }`}
               style={{
-                transform: `translate(calc(${x}px - 50%), calc(${y}px - 50%))`,
+                // Offset by half the icon size (40px) so the icon center sits exactly on the orbit point
+                transform: `translate(${x - 40}px, ${y - 40}px)`,
                 transitionDelay: `${i * 120 + 400}ms`,
               }}
             >
