@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import Image from "next/image"
 import { User, Crosshair, FileText, Users, Radio } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
+import { TacticalHudFrame } from "@/components/tactical-hud-frame"
 
 // --------------- DATA ---------------
 
@@ -13,18 +14,72 @@ interface TacticalModule {
   icon: React.ElementType
   /** Angle in degrees (0 = top, clockwise) */
   angle: number
+  /** Which side the info panel opens on */
+  panelSide: "left" | "right"
 }
 
 const MODULES: TacticalModule[] = [
-  { id: "profile", label: "Agent Profile", icon: User, angle: 225 },
-  { id: "abilities", label: "Core Abilities", icon: Crosshair, angle: 280 },
-  { id: "missions", label: "Mission Log", icon: FileText, angle: 335 },
-  { id: "squads", label: "Squads & Alliances", icon: Users, angle: 30 },
-  { id: "contact", label: "Contact Channels", icon: Radio, angle: 135 },
+  { id: "profile",   label: "Agent Profile",       icon: User,      angle: 234, panelSide: "left"  },
+  { id: "abilities", label: "Core Abilities",       icon: Crosshair, angle: 306, panelSide: "right" },
+  { id: "missions",  label: "Mission Log",          icon: FileText,  angle: 18,  panelSide: "right" },
+  { id: "squads",    label: "Squads & Alliances",   icon: Users,     angle: 90,  panelSide: "right" },
+  { id: "contact",   label: "Contact Channels",     icon: Radio,     angle: 162, panelSide: "left"  },
 ]
 
-// Tighter orbit so icons sit closer to the avatar
-const ORBIT_R = 170
+// Panel content for each module
+const PANEL_CONTENT: Record<string, { title: string; lines: string[] }> = {
+  profile: {
+    title: "Agent Profile",
+    lines: [
+      "Codename: PHANTOM",
+      "Rank: Operative-I",
+      "Clearance: Level 3",
+      "Status: Active Deployment",
+      "Specialization: Interface Engineering",
+    ],
+  },
+  abilities: {
+    title: "Core Abilities",
+    lines: [
+      "React / Next.js .......... 90%",
+      "TypeScript ............... 85%",
+      "UI/UX Design ............ 80%",
+      "Backend Systems ......... 70%",
+      "Leadership .............. 88%",
+    ],
+  },
+  missions: {
+    title: "Mission Log",
+    lines: [
+      "[ACTIVE]  Portfolio System v2.0",
+      "[ACTIVE]  Community Platform Build",
+      "[DONE]    College Tech Fest Site",
+      "[DONE]    Discord Bot Framework",
+      "[QUEUED]  Open-Source Contrib",
+    ],
+  },
+  squads: {
+    title: "Squads & Alliances",
+    lines: [
+      "GDG on Campus .... Community Lead",
+      "College Tech Club . Core Member",
+      "Open Source Guild . Contributor",
+      "Dev Discord ....... Moderator",
+    ],
+  },
+  contact: {
+    title: "Contact Channels",
+    lines: [
+      "GITHUB    github.com/adrisha",
+      "LINKEDIN  linkedin.com/in/adrisha",
+      "EMAIL     adrisha@dev.com",
+      "DISCORD   adrisha#0001",
+    ],
+  },
+}
+
+// Tighter pentagonal orbit
+const ORBIT_R = 190
 
 // --------------- CURSOR GLOW HOOK ---------------
 
@@ -32,31 +87,26 @@ function useCursorGlow() {
   const glowRef = useRef<HTMLDivElement>(null)
   const targetRef = useRef({ x: 0, y: 0 })
   const currentRef = useRef({ x: 0, y: 0 })
-  const activeRef = useRef(false)
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       targetRef.current = { x: e.clientX, y: e.clientY }
-      activeRef.current = true
 
-      // Reset idle fade timer
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
       if (glowRef.current) glowRef.current.style.opacity = "1"
 
       idleTimerRef.current = setTimeout(() => {
         if (glowRef.current) glowRef.current.style.opacity = "0"
-        activeRef.current = false
-      }, 2500)
+      }, 2000)
     }
 
-    // Smooth trailing via rAF
     let rafId: number
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
     const animate = () => {
-      currentRef.current.x = lerp(currentRef.current.x, targetRef.current.x, 0.08)
-      currentRef.current.y = lerp(currentRef.current.y, targetRef.current.y, 0.08)
+      currentRef.current.x = lerp(currentRef.current.x, targetRef.current.x, 0.09)
+      currentRef.current.y = lerp(currentRef.current.y, targetRef.current.y, 0.09)
 
       if (glowRef.current) {
         glowRef.current.style.transform = `translate(${currentRef.current.x}px, ${currentRef.current.y}px) translate(-50%, -50%)`
@@ -64,11 +114,7 @@ function useCursorGlow() {
       rafId = requestAnimationFrame(animate)
     }
 
-    // Initialise to center
-    targetRef.current = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-    }
+    targetRef.current = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
     currentRef.current = { ...targetRef.current }
 
     window.addEventListener("mousemove", handleMouseMove)
@@ -94,6 +140,7 @@ interface TacticalViewProps {
 export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
   const [mounted, setMounted] = useState(false)
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null)
+  const [activePanel, setActivePanel] = useState<string | null>(null)
   const { playClick } = useSound()
   const cursorGlowRef = useCursorGlow()
 
@@ -105,7 +152,7 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
   const handleIconClick = useCallback(
     (moduleId: string) => {
       playClick()
-      // Future: navigate to a full-screen module page
+      setActivePanel((prev) => (prev === moduleId ? null : moduleId))
     },
     [playClick]
   )
@@ -118,14 +165,14 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
   // Aura drift particles
   const auraParticles = useMemo(
     () =>
-      Array.from({ length: 16 }, (_, i) => ({
+      Array.from({ length: 18 }, (_, i) => ({
         id: i,
-        angle: (360 / 16) * i + Math.random() * 18,
-        distance: 50 + Math.random() * 100,
+        angle: (360 / 18) * i + Math.random() * 15,
+        distance: 60 + Math.random() * 120,
         size: Math.random() * 2.5 + 0.8,
         duration: `${Math.random() * 5 + 4}s`,
         delay: `${Math.random() * 4}s`,
-        opacity: Math.random() * 0.5 + 0.1,
+        opacity: Math.random() * 0.5 + 0.12,
       })),
     []
   )
@@ -133,13 +180,13 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
   // Background floating particles
   const bgParticles = useMemo(
     () =>
-      Array.from({ length: 10 }, (_, i) => ({
+      Array.from({ length: 12 }, (_, i) => ({
         id: i,
         left: `${Math.random() * 100}%`,
         size: Math.random() * 1.8 + 0.5,
         duration: `${Math.random() * 10 + 8}s`,
         delay: `${Math.random() * 5}s`,
-        opacity: Math.random() * 0.2 + 0.05,
+        opacity: Math.random() * 0.2 + 0.06,
       })),
     []
   )
@@ -155,13 +202,13 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         aria-hidden="true"
         className="pointer-events-none fixed left-0 top-0 z-[100]"
         style={{
-          width: "420px",
-          height: "420px",
+          width: "340px",
+          height: "340px",
           background:
-            "radial-gradient(circle, rgba(180,40,40,0.07) 0%, rgba(140,20,20,0.03) 35%, transparent 65%)",
-          filter: "blur(40px)",
+            "radial-gradient(circle, rgba(200,45,45,0.14) 0%, rgba(160,30,30,0.06) 30%, transparent 60%)",
+          filter: "blur(30px)",
           opacity: 0,
-          transition: "opacity 1.2s ease-out",
+          transition: "opacity 1s ease-out",
           willChange: "transform, opacity",
         }}
       />
@@ -174,9 +221,9 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         className="animate-cinematic-drift pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(140,20,20,0.1) 0%, transparent 60%), radial-gradient(ellipse 45% 35% at 35% 55%, rgba(100,15,15,0.06) 0%, transparent 50%), radial-gradient(ellipse 45% 35% at 65% 45%, rgba(120,10,10,0.05) 0%, transparent 50%)",
+            "radial-gradient(ellipse 55% 45% at 50% 50%, rgba(140,20,20,0.12) 0%, transparent 55%), radial-gradient(ellipse 40% 30% at 35% 55%, rgba(100,15,15,0.07) 0%, transparent 45%), radial-gradient(ellipse 40% 30% at 65% 45%, rgba(120,10,10,0.06) 0%, transparent 45%)",
           backgroundSize: "300% 300%",
-          filter: "blur(80px)",
+          filter: "blur(70px)",
         }}
       />
 
@@ -186,8 +233,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(180,50,50,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(180,50,50,0.02) 1px, transparent 1px)",
-          backgroundSize: "70px 70px",
+            "linear-gradient(rgba(180,50,50,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(180,50,50,0.025) 1px, transparent 1px)",
+          backgroundSize: "65px 65px",
         }}
       />
 
@@ -197,8 +244,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         className="animate-scan-line pointer-events-none absolute left-0 right-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg, transparent 0%, rgba(180,50,50,0.08) 20%, rgba(180,50,50,0.18) 50%, rgba(180,50,50,0.08) 80%, transparent 100%)",
-          boxShadow: "0 0 20px 3px rgba(180,50,50,0.04)",
+            "linear-gradient(90deg, transparent 0%, rgba(180,50,50,0.08) 20%, rgba(180,50,50,0.2) 50%, rgba(180,50,50,0.08) 80%, transparent 100%)",
+          boxShadow: "0 0 20px 3px rgba(180,50,50,0.05)",
         }}
       />
 
@@ -219,7 +266,7 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.85) 100%)",
+            "radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.8) 100%)",
         }}
       />
 
@@ -243,7 +290,7 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
         ))}
       </div>
 
-      {/* ============ BACK BUTTON (top-left) ============ */}
+      {/* ============ BACK BUTTON ============ */}
       {onBack && (
         <button
           onClick={handleBack}
@@ -258,19 +305,13 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
             className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-1"
             aria-hidden="true"
           >
-            <path
-              d="M10 3L5 8L10 13"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span>Back</span>
         </button>
       )}
 
-      {/* ============ IDENTITY BADGE (bottom-left) ============ */}
+      {/* ============ IDENTITY BADGE ============ */}
       <div
         className={`absolute bottom-6 left-6 z-30 transition-all duration-700 delay-500 sm:bottom-8 sm:left-10 ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
@@ -292,41 +333,41 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
       {/* ============ CENTER: AVATAR + AURA + ICONS ============ */}
       <div
         className={`relative z-20 flex items-center justify-center transition-all duration-1000 ${
-          mounted ? "scale-100 opacity-100" : "scale-[0.92] opacity-0"
+          mounted ? "scale-100 opacity-100" : "scale-[0.9] opacity-0"
         }`}
       >
-        {/* Outer decorative HUD ring -- tighter */}
+        {/* Outer decorative HUD ring */}
         <div
           aria-hidden="true"
           className="animate-loader-spin-slow pointer-events-none absolute rounded-full"
           style={{
-            width: `${ORBIT_R * 2 + 50}px`,
-            height: `${ORBIT_R * 2 + 50}px`,
+            width: `${ORBIT_R * 2 + 60}px`,
+            height: `${ORBIT_R * 2 + 60}px`,
             border: "1px solid rgba(180,50,50,0.04)",
-            borderTopColor: "rgba(180,50,50,0.1)",
+            borderTopColor: "rgba(180,50,50,0.12)",
           }}
         />
         <div
           aria-hidden="true"
           className="animate-loader-spin-reverse-slow pointer-events-none absolute rounded-full"
           style={{
-            width: `${ORBIT_R * 2 + 25}px`,
-            height: `${ORBIT_R * 2 + 25}px`,
+            width: `${ORBIT_R * 2 + 30}px`,
+            height: `${ORBIT_R * 2 + 30}px`,
             border: "1px dashed rgba(180,50,50,0.025)",
-            borderBottomColor: "rgba(180,50,50,0.06)",
+            borderBottomColor: "rgba(180,50,50,0.07)",
           }}
         />
 
-        {/* Aura layer 1 -- wide diffuse (smaller radius) */}
+        {/* Aura layer 1 -- wide diffuse */}
         <div
           aria-hidden="true"
           className="animate-aura-pulse pointer-events-none absolute"
           style={{
-            width: "320px",
-            height: "420px",
+            width: "380px",
+            height: "520px",
             background:
-              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(160,30,30,0.16) 0%, rgba(120,15,15,0.05) 45%, transparent 70%)",
-            filter: "blur(45px)",
+              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(160,30,30,0.18) 0%, rgba(120,15,15,0.06) 40%, transparent 65%)",
+            filter: "blur(50px)",
           }}
         />
         {/* Aura layer 2 -- core glow */}
@@ -334,23 +375,23 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           aria-hidden="true"
           className="animate-aura-pulse-delayed pointer-events-none absolute"
           style={{
-            width: "220px",
-            height: "320px",
+            width: "260px",
+            height: "400px",
             background:
-              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(190,45,45,0.14) 0%, transparent 60%)",
-            filter: "blur(30px)",
+              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(190,45,45,0.15) 0%, transparent 55%)",
+            filter: "blur(35px)",
           }}
         />
-        {/* Aura layer 3 -- subtle rim */}
+        {/* Aura layer 3 -- tight rim */}
         <div
           aria-hidden="true"
           className="animate-aura-pulse pointer-events-none absolute"
           style={{
-            width: "160px",
-            height: "260px",
+            width: "180px",
+            height: "310px",
             background:
-              "radial-gradient(ellipse 100% 100% at 50% 55%, rgba(220,60,60,0.07) 0%, transparent 55%)",
-            filter: "blur(18px)",
+              "radial-gradient(ellipse 100% 100% at 50% 55%, rgba(220,60,60,0.08) 0%, transparent 50%)",
+            filter: "blur(20px)",
             animationDelay: "0.8s",
           }}
         />
@@ -382,40 +423,42 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           })}
         </div>
 
-        {/* Operator avatar -- ~48vh tall with idle float */}
+        {/* Operator avatar -- dominant ~58vh tall with idle float */}
         <div
           className="animate-avatar-float relative"
-          style={{ width: "clamp(260px, 36vw, 440px)", height: "48vh" }}
+          style={{ width: "clamp(280px, 40vw, 500px)", height: "58vh" }}
         >
           <Image
             src="/images/operator-avatar.png"
             alt="Operator avatar - Adrisha Biswas"
             fill
-            className="object-contain drop-shadow-[0_0_50px_rgba(160,30,30,0.22)]"
+            className="object-contain drop-shadow-[0_0_60px_rgba(160,30,30,0.25)]"
             style={{ objectPosition: "center bottom" }}
             priority
           />
-          {/* Floor reflection */}
+          {/* Floor glow */}
           <div
             aria-hidden="true"
-            className="absolute -bottom-2 left-1/2 h-5 w-32 -translate-x-1/2"
+            className="absolute -bottom-3 left-1/2 h-6 w-40 -translate-x-1/2"
             style={{
               background:
-                "radial-gradient(ellipse at center, rgba(180,40,40,0.18) 0%, transparent 70%)",
-              filter: "blur(10px)",
+                "radial-gradient(ellipse at center, rgba(180,40,40,0.22) 0%, transparent 70%)",
+              filter: "blur(12px)",
             }}
           />
         </div>
 
-        {/* ============ RADIAL TACTICAL ICONS (bigger, tighter) ============ */}
+        {/* ============ PENTAGONAL TACTICAL ICONS ============ */}
         {MODULES.map((mod, i) => {
           const Icon = mod.icon
           const isHovered = hoveredIcon === mod.id
+          const isActive = activePanel === mod.id
 
-          // 0 = top, clockwise
           const rad = ((mod.angle - 90) * Math.PI) / 180
           const x = Math.cos(rad) * ORBIT_R
           const y = Math.sin(rad) * ORBIT_R
+
+          const panel = PANEL_CONTENT[mod.id]
 
           return (
             <div
@@ -428,37 +471,99 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
                 transitionDelay: `${i * 120 + 300}ms`,
               }}
             >
+              {/* Icon button */}
               <button
                 onClick={() => handleIconClick(mod.id)}
                 onMouseEnter={() => setHoveredIcon(mod.id)}
                 onMouseLeave={() => setHoveredIcon(null)}
-                className={`group relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border transition-all duration-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0e] sm:h-14 sm:w-14 ${
-                  isHovered
-                    ? "border-danger/50 bg-danger/[0.1] shadow-[0_0_30px_-4px] shadow-danger/30"
-                    : "border-danger/15 bg-[#0a0a0e]/60 hover:border-danger/40 hover:bg-danger/[0.06]"
+                className={`group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0e] ${
+                  isActive
+                    ? "border-danger/60 bg-danger/[0.14] shadow-[0_0_35px_-4px] shadow-danger/40"
+                    : isHovered
+                      ? "border-danger/50 bg-danger/[0.1] shadow-[0_0_30px_-4px] shadow-danger/30"
+                      : "border-danger/15 bg-[#0a0a0e]/60 hover:border-danger/40 hover:bg-danger/[0.06]"
                 }`}
                 aria-label={mod.label}
+                aria-expanded={isActive}
               >
                 <Icon
-                  className={`h-5 w-5 transition-colors duration-300 sm:h-6 sm:w-6 ${
-                    isHovered
-                      ? "text-danger/90"
-                      : "text-danger/40 group-hover:text-danger/70"
+                  className={`h-6 w-6 transition-colors duration-300 ${
+                    isActive
+                      ? "text-danger"
+                      : isHovered
+                        ? "text-danger/90"
+                        : "text-danger/40 group-hover:text-danger/70"
                   }`}
                 />
+
+                {/* Active ring indicator */}
+                {isActive && (
+                  <span
+                    className="absolute inset-0 animate-ping rounded-full border border-danger/20"
+                    style={{ animationDuration: "2s" }}
+                    aria-hidden="true"
+                  />
+                )}
               </button>
 
-              {/* Hover label */}
+              {/* Hover label (only when NOT showing panel) */}
+              {!isActive && (
+                <div
+                  className={`pointer-events-none absolute left-1/2 top-full mt-2.5 -translate-x-1/2 whitespace-nowrap transition-all duration-300 ${
+                    isHovered
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-1 opacity-0"
+                  }`}
+                >
+                  <span className="rounded border border-danger/10 bg-[#0a0a0e]/90 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.25em] text-danger/60 shadow-lg backdrop-blur-sm">
+                    {mod.label}
+                  </span>
+                </div>
+              )}
+
+              {/* ======= CONTEXTUAL INFO PANEL ======= */}
               <div
-                className={`pointer-events-none absolute left-1/2 top-full mt-2.5 -translate-x-1/2 whitespace-nowrap transition-all duration-300 ${
-                  isHovered
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-1 opacity-0"
+                className={`absolute top-1/2 z-50 -translate-y-1/2 transition-all duration-500 ${
+                  mod.panelSide === "right" ? "left-[calc(100%+16px)]" : "right-[calc(100%+16px)]"
+                } ${
+                  isActive
+                    ? "pointer-events-auto scale-100 opacity-100"
+                    : "pointer-events-none scale-95 opacity-0"
                 }`}
               >
-                <span className="rounded border border-danger/10 bg-[#0a0a0e]/90 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.25em] text-danger/60 shadow-lg backdrop-blur-sm">
-                  {mod.label}
-                </span>
+                <TacticalHudFrame
+                  className="w-56"
+                  glowIntensity={0.5}
+                >
+                  <div className="flex flex-col gap-3 p-4">
+                    {/* Panel title */}
+                    <div className="flex items-center gap-2">
+                      <div className="h-px flex-1 bg-danger/20" />
+                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-danger/60">
+                        {panel?.title}
+                      </span>
+                      <div className="h-px flex-1 bg-danger/20" />
+                    </div>
+
+                    {/* Panel content lines */}
+                    <div className="flex flex-col gap-1.5">
+                      {panel?.lines.map((line, li) => (
+                        <p
+                          key={li}
+                          className="font-mono text-[9px] leading-relaxed tracking-wide text-foreground/50"
+                          style={{
+                            animationDelay: `${li * 60}ms`,
+                          }}
+                        >
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Bottom accent */}
+                    <div className="mt-1 h-px w-full bg-gradient-to-r from-transparent via-danger/15 to-transparent" />
+                  </div>
+                </TacticalHudFrame>
               </div>
             </div>
           )
