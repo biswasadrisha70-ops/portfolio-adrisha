@@ -69,6 +69,197 @@ function useCursorGlow() {
   return glowRef
 }
 
+// ===================== AURA ENGINE =====================
+
+/** Generates a seeded-random number from index for deterministic particle layouts */
+function seeded(i: number, offset = 0) {
+  const x = Math.sin(i * 127.1 + offset * 311.7) * 43758.5453
+  return x - Math.floor(x)
+}
+
+/** Fiery red energy aura with sparks, blobs, embers, and energy waves */
+function AuraEngine() {
+  // ---------- SPARKS (small bright dots flying outward) ----------
+  const sparks = Array.from({ length: 22 }, (_, i) => {
+    const angle = seeded(i, 1) * 360
+    const distance = 80 + seeded(i, 2) * 100
+    const rad = (angle * Math.PI) / 180
+    const dx = Math.cos(rad) * distance
+    const dy = Math.sin(rad) * distance - 40 // bias upward
+    const duration = 1.8 + seeded(i, 3) * 2.4
+    const delay = seeded(i, 4) * 4
+    const startX = (seeded(i, 5) - 0.5) * 120
+    const startY = (seeded(i, 6) - 0.5) * 200
+    const size = 1.5 + seeded(i, 7) * 2.5
+
+    return (
+      <div
+        key={`spark-${i}`}
+        aria-hidden="true"
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `calc(50% + ${startX}px)`,
+          top: `calc(50% + ${startY}px)`,
+          background: `radial-gradient(circle, rgba(255,${100 + Math.floor(seeded(i, 8) * 60)},${60 + Math.floor(seeded(i, 9) * 40)},1) 0%, rgba(200,40,40,0.6) 60%, transparent 100%)`,
+          boxShadow: `0 0 ${3 + size}px rgba(255,80,50,0.6)`,
+          animation: `spark-rise ${duration}s ease-out infinite`,
+          animationDelay: `${delay}s`,
+          ["--spark-dx" as string]: `${dx}px`,
+          ["--spark-dy" as string]: `${dy}px`,
+        }}
+      />
+    )
+  })
+
+  // ---------- PARTICLE BLOBS (soft, large, drifting) ----------
+  const blobs = Array.from({ length: 10 }, (_, i) => {
+    const angle = seeded(i, 10) * 360
+    const distance = 40 + seeded(i, 11) * 80
+    const rad = (angle * Math.PI) / 180
+    const dx = Math.cos(rad) * distance
+    const dy = Math.sin(rad) * distance - 30
+    const duration = 4 + seeded(i, 12) * 4
+    const delay = seeded(i, 13) * 5
+    const startX = (seeded(i, 14) - 0.5) * 80
+    const startY = (seeded(i, 15) - 0.5) * 160
+    const size = 10 + seeded(i, 16) * 20
+    const blur = 6 + seeded(i, 17) * 10
+    const peak = 0.2 + seeded(i, 18) * 0.35
+
+    return (
+      <div
+        key={`blob-${i}`}
+        aria-hidden="true"
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `calc(50% + ${startX}px)`,
+          top: `calc(50% + ${startY}px)`,
+          background: `radial-gradient(circle, rgba(180,40,30,${peak}) 0%, rgba(140,20,20,0.1) 50%, transparent 100%)`,
+          animation: `blob-drift ${duration}s ease-in-out infinite`,
+          animationDelay: `${delay}s`,
+          ["--blob-dx" as string]: `${dx}px`,
+          ["--blob-dy" as string]: `${dy}px`,
+          ["--blob-blur" as string]: `${blur}px`,
+          ["--blob-peak" as string]: `${peak}`,
+        }}
+      />
+    )
+  })
+
+  // ---------- EMBERS (medium bright, fade to nothing) ----------
+  const embers = Array.from({ length: 14 }, (_, i) => {
+    const angle = seeded(i, 20) * 360
+    const distance = 60 + seeded(i, 21) * 140
+    const rad = (angle * Math.PI) / 180
+    const dx = Math.cos(rad) * distance
+    const dy = Math.sin(rad) * distance - 50
+    const duration = 2.5 + seeded(i, 22) * 3
+    const delay = seeded(i, 23) * 5
+    const startX = (seeded(i, 24) - 0.5) * 100
+    const startY = (seeded(i, 25) - 0.5) * 180
+    const size = 2 + seeded(i, 26) * 3
+
+    return (
+      <div
+        key={`ember-${i}`}
+        aria-hidden="true"
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `calc(50% + ${startX}px)`,
+          top: `calc(50% + ${startY}px)`,
+          background: `rgba(255,${70 + Math.floor(seeded(i, 27) * 50)},30,0.9)`,
+          boxShadow: `0 0 ${4 + size * 2}px rgba(200,50,30,0.5)`,
+          animation: `ember-fade ${duration}s ease-out infinite`,
+          animationDelay: `${delay}s`,
+          ["--ember-dx" as string]: `${dx}px`,
+          ["--ember-dy" as string]: `${dy}px`,
+        }}
+      />
+    )
+  })
+
+  // ---------- ENERGY WAVES (concentric rings expanding outward) ----------
+  const waves = Array.from({ length: 3 }, (_, i) => {
+    const size = 200 + i * 80
+    const duration = 5 + i * 1.5
+    const delay = i * 2.2
+
+    return (
+      <div
+        key={`wave-${i}`}
+        aria-hidden="true"
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: `${size}px`,
+          height: `${size * 1.3}px`,
+          border: `1px solid rgba(180,50,40,${0.08 - i * 0.015})`,
+          animation: `energy-wave ${duration}s ease-out infinite`,
+          animationDelay: `${delay}s`,
+        }}
+      />
+    )
+  })
+
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible">
+      {/* Base glow layer (replaces old static pulse) */}
+      <div
+        className="absolute"
+        style={{
+          width: "600px",
+          height: "780px",
+          background:
+            "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(150,25,25,0.2) 0%, rgba(120,15,15,0.06) 40%, transparent 65%)",
+          filter: "blur(55px)",
+          animation: "glow-breathe 6s ease-in-out infinite",
+          ["--glow-min" as string]: "0.18",
+          ["--glow-max" as string]: "0.32",
+        }}
+      />
+      {/* Core heat layer */}
+      <div
+        className="absolute"
+        style={{
+          width: "380px",
+          height: "600px",
+          background:
+            "radial-gradient(ellipse 100% 100% at 50% 48%, rgba(200,45,35,0.16) 0%, rgba(160,25,25,0.04) 45%, transparent 60%)",
+          filter: "blur(40px)",
+          animation: "glow-breathe 8s ease-in-out 2s infinite",
+          ["--glow-min" as string]: "0.14",
+          ["--glow-max" as string]: "0.28",
+        }}
+      />
+      {/* Tight rim (character edge light) */}
+      <div
+        className="absolute"
+        style={{
+          width: "260px",
+          height: "480px",
+          background:
+            "radial-gradient(ellipse 100% 100% at 50% 52%, rgba(220,55,45,0.1) 0%, transparent 50%)",
+          filter: "blur(24px)",
+          animation: "glow-breathe 5s ease-in-out 1s infinite",
+          ["--glow-min" as string]: "0.1",
+          ["--glow-max" as string]: "0.22",
+        }}
+      />
+
+      {/* Particle layers */}
+      {waves}
+      {blobs}
+      {embers}
+      {sparks}
+    </div>
+  )
+}
+
 // ===================== MAIN COMPONENT =====================
 
 interface TacticalViewProps {
@@ -293,44 +484,8 @@ export function TacticalView({ selectedRole, onBack }: TacticalViewProps) {
           }}
         />
 
-        {/* ====== AURA (soft red glow only) ====== */}
-        {/* Wide diffuse layer */}
-        <div
-          aria-hidden="true"
-          className="animate-aura-pulse pointer-events-none absolute"
-          style={{
-            width: "600px",
-            height: "780px",
-            background:
-              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(150,25,25,0.18) 0%, rgba(120,15,15,0.06) 40%, transparent 65%)",
-            filter: "blur(60px)",
-          }}
-        />
-        {/* Core layer */}
-        <div
-          aria-hidden="true"
-          className="animate-aura-pulse-delayed pointer-events-none absolute"
-          style={{
-            width: "420px",
-            height: "640px",
-            background:
-              "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(180,40,40,0.14) 0%, transparent 55%)",
-            filter: "blur(45px)",
-          }}
-        />
-        {/* Tight rim layer */}
-        <div
-          aria-hidden="true"
-          className="animate-aura-pulse pointer-events-none absolute"
-          style={{
-            width: "300px",
-            height: "520px",
-            background:
-              "radial-gradient(ellipse 100% 100% at 50% 55%, rgba(200,50,50,0.08) 0%, transparent 50%)",
-            filter: "blur(28px)",
-            animationDelay: "0.8s",
-          }}
-        />
+        {/* ====== DYNAMIC FIERY AURA ====== */}
+        <AuraEngine />
 
         {/* ====== OPERATOR AVATAR ====== */}
         <div
