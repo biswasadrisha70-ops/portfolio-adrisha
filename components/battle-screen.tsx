@@ -93,120 +93,6 @@ function RedAuraEngine() {
   )
 }
 
-// ===================== GUN TIP ENERGY CROSS =====================
-function GunTipEnergyCross() {
-  return (
-    <div 
-      className="pointer-events-none absolute"
-      style={{
-        top: "18%",
-        left: "50%",
-        transform: "translateX(-50%)",
-      }}
-    >
-      {/* Outer bloom */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,191,255,0.15) 0%, transparent 70%)",
-          filter: "blur(4px)",
-          animation: "bloom-pulse 2s ease-in-out infinite",
-        }}
-      />
-      {/* Center glow point */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(100,200,255,1) 0%, rgba(0,191,255,0.6) 50%, transparent 100%)",
-          boxShadow: "0 0 12px rgba(0,191,255,0.9), 0 0 24px rgba(0,191,255,0.5)",
-          animation: "energy-pulse 1.5s ease-in-out infinite",
-        }}
-      />
-      {/* Crosshair flare - horizontal */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 24,
-          height: 2,
-          background: "linear-gradient(90deg, transparent 0%, rgba(0,191,255,0.8) 30%, rgba(100,200,255,1) 50%, rgba(0,191,255,0.8) 70%, transparent 100%)",
-          boxShadow: "0 0 8px rgba(0,191,255,0.6)",
-          animation: "cross-flicker 2s ease-in-out infinite",
-        }}
-      />
-      {/* Crosshair flare - vertical */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 2,
-          height: 24,
-          background: "linear-gradient(180deg, transparent 0%, rgba(0,191,255,0.8) 30%, rgba(100,200,255,1) 50%, rgba(0,191,255,0.8) 70%, transparent 100%)",
-          boxShadow: "0 0 8px rgba(0,191,255,0.6)",
-          animation: "cross-flicker 2s ease-in-out infinite",
-          animationDelay: "0.5s",
-        }}
-      />
-    </div>
-  )
-}
-
-// ===================== AVATAR TARGET CROSS (Blue Neon — compact) =====================
-function AvatarTargetCross() {
-  return (
-    <div
-      className="pointer-events-none absolute z-[2]"
-      style={{
-        top: "42%",
-        left: "50%",
-        width: 28,
-        height: 28,
-        transform: "translate(-50%, -50%)",
-      }}
-    >
-      {/* Center glow dot */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(100,200,255,1) 0%, rgba(0,207,255,0.5) 60%, transparent 100%)",
-          boxShadow: "0 0 7px rgba(0,207,255,0.54), 0 0 14px rgba(0,207,255,0.3)",
-          animation: "energy-pulse 1.5s ease-in-out infinite",
-        }}
-      />
-      {/* Crosshair — horizontal */}
-      <div
-        className="absolute left-0 top-1/2 -translate-y-1/2"
-        style={{
-          width: "100%",
-          height: 2,
-          background: "linear-gradient(90deg, transparent 0%, rgba(0,207,255,0.48) 30%, rgba(100,200,255,0.6) 50%, rgba(0,207,255,0.48) 70%, transparent 100%)",
-          boxShadow: "0 0 5px rgba(0,207,255,0.36)",
-          animation: "cross-flicker 2s ease-in-out infinite",
-        }}
-      />
-      {/* Crosshair — vertical */}
-      <div
-        className="absolute left-1/2 top-0 -translate-x-1/2"
-        style={{
-          width: 2,
-          height: "100%",
-          background: "linear-gradient(180deg, transparent 0%, rgba(0,207,255,0.48) 30%, rgba(100,200,255,0.6) 50%, rgba(0,207,255,0.48) 70%, transparent 100%)",
-          boxShadow: "0 0 5px rgba(0,207,255,0.36)",
-          animation: "cross-flicker 2s ease-in-out infinite",
-          animationDelay: "0.5s",
-        }}
-      />
-    </div>
-  )
-}
-
 // ===================== MAIN COMPONENT =====================
 export function BattleScreen() {
   const [mounted, setMounted] = useState(false)
@@ -244,18 +130,7 @@ export function BattleScreen() {
           0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
           50% { opacity: 0.85; transform: translateX(-50%) scaleX(1.1); }
         }
-        @keyframes cross-flicker {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
-        }
-        @keyframes energy-pulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-          50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-        }
-        @keyframes bloom-pulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
-        }
+
       `}</style>
 
       {/* ============= BATTLEFIELD BACKGROUND ============= */}
@@ -284,11 +159,11 @@ export function BattleScreen() {
         }}
       />
 
-      {/* ============= AVATAR TARGETS WITH AURA, CROSS & ANCHORED LABELS ============= */}
+      {/* ============= AVATAR TARGETS WITH AURA & ANCHORED LABELS ============= */}
       {AVATAR_TARGETS.map((avatar, index) => (
         <div
           key={avatar.id}
-          className="pointer-events-none absolute"
+          className="pointer-events-none absolute inline-block"
           style={{
             left: avatar.left,
             bottom: avatar.bottom,
@@ -296,12 +171,11 @@ export function BattleScreen() {
             height: avatar.height,
             width: "auto",
             zIndex: avatar.z,
-            position: "absolute",
           }}
         >
-          {/* Label anchored just above head */}
+          {/* Label anchored above head */}
           <div
-            className="absolute z-[3] whitespace-nowrap text-center"
+            className="absolute whitespace-nowrap text-center"
             style={{
               bottom: "100%",
               left: "50%",
@@ -312,23 +186,20 @@ export function BattleScreen() {
             <span
               className="font-mono uppercase"
               style={{
-                fontSize: "18px",
+                fontSize: "20px",
                 letterSpacing: "2px",
                 fontWeight: 600,
                 color: "#00CFFF",
                 whiteSpace: "nowrap",
-                textShadow: "0 0 5.6px rgba(0,207,255,0.42), 0 0 11.2px rgba(0,207,255,0.21)",
+                textShadow: "0 0 6px rgba(0,200,255,0.6)",
               }}
             >
               {AVATAR_LABELS[index].label}
             </span>
           </div>
 
-          {/* Toned down Red Aura Engine */}
+          {/* Red Aura Engine */}
           <RedAuraEngine />
-
-          {/* Blue Target Cross */}
-          <AvatarTargetCross />
           
           {/* Avatar Image */}
           <Image
@@ -336,7 +207,7 @@ export function BattleScreen() {
             alt={`Target ${avatar.id}`}
             width={400}
             height={600}
-            className="relative z-[1] h-full w-auto object-contain"
+            className="relative h-full w-auto object-contain"
             unoptimized
           />
         </div>
@@ -352,9 +223,6 @@ export function BattleScreen() {
           height: "auto",
         }}
       >
-        {/* Gun Tip Energy Cross */}
-        <GunTipEnergyCross />
-        
         <Image
           src="/images/gun.png"
           alt="Weapon"
