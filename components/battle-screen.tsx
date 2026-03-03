@@ -186,8 +186,8 @@ export function BattleScreen() {
             <span
               className="font-mono uppercase"
               style={{
-                fontSize: "20px",
-                letterSpacing: "2px",
+                fontSize: "30px",
+                letterSpacing: "3px",
                 fontWeight: 600,
                 color: "#00CFFF",
                 whiteSpace: "nowrap",
