@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import { CharacterSelect } from "@/components/character-select"
 import { ModeSelect } from "@/components/mode-select"
 import { CinematicLoader } from "@/components/cinematic-loader"
@@ -17,7 +16,6 @@ import { SoundToggle } from "@/components/sound-toggle"
 import { SoundProvider } from "@/hooks/use-sound"
 
 export default function Home() {
-  const router = useRouter()
   const [screen, setScreen] = useState<"character" | "mode" | "loading" | "tactical" | "profile" | "abilities" | "missions" | "alliances">("character")
   const [selectedRole, setSelectedRole] = useState<string>("")
   const [selectedModeLabel, setSelectedModeLabel] = useState<string>("")
@@ -162,13 +160,6 @@ export default function Home() {
     }, 600)
   }, [])
 
-  const handleAlliancesNext = useCallback(() => {
-    setTransitioning(true)
-    setTimeout(() => {
-      router.push("/contact-channels")
-    }, 600)
-  }, [router])
-
   const handleAlliancesBack = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
@@ -290,7 +281,6 @@ export default function Home() {
           >
             <SquadsAlliances
               onPrev={handleAlliancesPrev}
-              onNext={handleAlliancesNext}
               onBack={handleAlliancesBack}
             />
           </div>
