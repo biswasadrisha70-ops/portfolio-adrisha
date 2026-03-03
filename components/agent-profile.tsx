@@ -139,7 +139,7 @@ function ProfileAuraEngine() {
   })
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] flex items-end justify-end overflow-visible">
       {/* Wide outer glow */}
       <div
         className="absolute"
@@ -325,7 +325,7 @@ export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
 
         {/* ---- RIGHT: CHARACTER WITH AURA ---- */}
         <div
-          className={`relative flex flex-1 items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          className={`relative flex h-full flex-1 items-end justify-end transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
             mounted ? "translate-x-0 scale-100 opacity-100" : "translate-x-12 scale-[0.92] opacity-0"
           }`}
         >
@@ -334,18 +334,19 @@ export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
 
           {/* Character avatar */}
           <div
-            className="animate-avatar-float relative z-20"
+            className="animate-avatar-float relative z-[10]"
             style={{
-              width: "clamp(320px, 40vw, 560px)",
-              height: "75vh",
+              height: "90vh",
+              width: "auto",
             }}
           >
             <Image
               src="/images/profile-avatar.png"
               alt="Agent profile -- front-facing operator portrait"
-              fill
-              className="object-contain drop-shadow-[0_0_80px_rgba(160,30,30,0.35)]"
-              style={{ objectPosition: "center center" }}
+              width={600}
+              height={900}
+              className="h-full w-auto object-contain drop-shadow-[0_0_80px_rgba(160,30,30,0.35)]"
+              style={{ objectPosition: "bottom right" }}
               priority
             />
             {/* Floor glow */}
@@ -364,7 +365,7 @@ export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
 
       {/* ====== BOTTOM NAV ARROWS ====== */}
       <div
-        className={`fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
+        className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
         }`}
       >

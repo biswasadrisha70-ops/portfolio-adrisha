@@ -168,7 +168,7 @@ function MissionAuraEngine() {
   })
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center overflow-visible">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] flex items-end justify-end overflow-visible">
       {/* Wide outer glow - intensified */}
       <div
         className="absolute"
@@ -388,7 +388,7 @@ export function MissionLog({ onPrev, onNext, onBack }: MissionLogProps) {
 
         {/* ---- RIGHT: CHARACTER WITH AURA (transparent - PNG preserves alpha) ---- */}
         <div
-          className={`relative flex flex-1 items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          className={`relative flex h-full flex-1 items-end justify-end transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
             mounted ? "translate-x-0 scale-100 opacity-100" : "translate-x-12 scale-[0.92] opacity-0"
           }`}
           style={{ background: "transparent" }}
@@ -396,21 +396,22 @@ export function MissionLog({ onPrev, onNext, onBack }: MissionLogProps) {
           <MissionAuraEngine />
 
           <div
-            className="animate-avatar-float relative z-20"
+            className="animate-avatar-float relative z-[10]"
             style={{
-              width: "clamp(340px, 42vw, 580px)",
-              height: "78vh",
+              height: "90vh",
+              width: "auto",
               background: "transparent",
             }}
           >
             <Image
               src="/images/mission-avatar.png"
               alt="Operator side profile -- Mission Log view"
-              fill
+              width={600}
+              height={900}
               unoptimized
-              className="object-contain drop-shadow-[0_0_90px_rgba(180,40,35,0.4)]"
+              className="h-full w-auto object-contain drop-shadow-[0_0_90px_rgba(180,40,35,0.4)]"
               style={{ 
-                objectPosition: "center center",
+                objectPosition: "bottom right",
               }}
               priority
             />
@@ -431,7 +432,7 @@ export function MissionLog({ onPrev, onNext, onBack }: MissionLogProps) {
       {/* ====== BACK BUTTON (Top-left) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[95] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-7 ${
+        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-7 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
         aria-label="Back to tactical hub"
@@ -442,7 +443,7 @@ export function MissionLog({ onPrev, onNext, onBack }: MissionLogProps) {
 
       {/* ====== BOTTOM NAV ARROWS ====== */}
       <div
-        className={`fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
+        className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
         }`}
       >
