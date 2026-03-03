@@ -14,7 +14,7 @@ const AVATAR_TARGETS = [
 
 // ===================== AVATAR-ANCHORED HUD LABELS =====================
 const AVATAR_LABELS = [
-  { id: 1, label: "SQUADS & ALLIANCES" },
+  { id: 1, label: "ALLIANCES" },
   { id: 2, label: "MISSIONS" },
   { id: 3, label: "PROFILE" },
   { id: 4, label: "CORE ABILITIES" },
@@ -93,6 +93,71 @@ function RedAuraEngine() {
   )
 }
 
+// ===================== HUD LABEL BOX WITH BLUE SPARKS =====================
+function HudLabelBox({ label }: { label: string }) {
+  const sparks = useMemo(
+    () =>
+      Array.from({ length: 6 }, (_, i) => ({
+        id: i,
+        left: 10 + Math.random() * 80,
+        delay: Math.random() * 5,
+        duration: 3 + Math.random() * 3,
+        size: 1.5 + Math.random() * 2,
+      })),
+    []
+  )
+
+  return (
+    <div className="relative inline-block">
+      {/* Blue energy sparks */}
+      {sparks.map((spark) => (
+        <div
+          key={spark.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${spark.left}%`,
+            bottom: "0%",
+            width: spark.size,
+            height: spark.size,
+            background: "radial-gradient(circle, rgba(0,200,255,0.9) 0%, rgba(0,160,220,0.4) 100%)",
+            boxShadow: "0 0 4px rgba(0,200,255,0.6)",
+            opacity: 0,
+            animation: `hud-spark-rise ${spark.duration}s ease-out infinite`,
+            animationDelay: `${spark.delay}s`,
+          }}
+        />
+      ))}
+      {/* HUD frame */}
+      <div
+        style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          borderRadius: "6px",
+          border: "1px solid rgba(0, 200, 255, 0.6)",
+          background: "rgba(0, 30, 50, 0.25)",
+          backdropFilter: "blur(2px)",
+          boxShadow: "0 0 8px rgba(0, 200, 255, 0.6), 0 0 18px rgba(0, 200, 255, 0.3)",
+        }}
+      >
+        <span
+          className="uppercase"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "14px",
+            letterSpacing: "2px",
+            fontWeight: 600,
+            color: "#00CFFF",
+            whiteSpace: "nowrap",
+            textShadow: "0 0 4px rgba(0,200,255,0.5)",
+          }}
+        >
+          {label}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 // ===================== MAIN COMPONENT =====================
 export function BattleScreen() {
   const [mounted, setMounted] = useState(false)
@@ -129,6 +194,12 @@ export function BattleScreen() {
         @keyframes ground-glow {
           0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
           50% { opacity: 0.85; transform: translateX(-50%) scaleX(1.1); }
+        }
+        @keyframes hud-spark-rise {
+          0% { transform: translateY(0) scale(1); opacity: 0; }
+          10% { opacity: 0.5; }
+          50% { opacity: 0.4; }
+          100% { transform: translateY(-28px) scale(0.3); opacity: 0; }
         }
 
       `}</style>
@@ -173,7 +244,7 @@ export function BattleScreen() {
             zIndex: avatar.z,
           }}
         >
-          {/* Label anchored above head */}
+          {/* HUD label anchored above head */}
           <div
             className="absolute whitespace-nowrap text-center"
             style={{
@@ -183,19 +254,7 @@ export function BattleScreen() {
               marginBottom: "6px",
             }}
           >
-            <span
-              className="font-mono uppercase"
-              style={{
-                fontSize: "14px",
-                letterSpacing: "2px",
-                fontWeight: 500,
-                color: "#00CFFF",
-                whiteSpace: "nowrap",
-                textShadow: "0 0 4px rgba(0,200,255,0.5)",
-              }}
-            >
-              {AVATAR_LABELS[index].label}
-            </span>
+            <HudLabelBox label={AVATAR_LABELS[index].label} />
           </div>
 
           {/* Red Aura Engine */}

@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from 'next'
-import { JetBrains_Mono, Inter } from 'next/font/google'
+import { JetBrains_Mono, Inter, Orbitron } from 'next/font/google'
 // import { Analytics } from '@vercel/analytics/next' // Temporarily disabled
 import './globals.css'
 
 const _inter = Inter({ subsets: ["latin"] });
 const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
+const _orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: 'Agent: Adrisha Biswas | Tactical Portfolio',
