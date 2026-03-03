@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { User, Crosshair, FileText, Users, Radio } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
 import { SoundToggle } from "@/components/sound-toggle"
@@ -275,7 +274,6 @@ export function TacticalView({ selectedRole, onBack, onModuleOpen }: TacticalVie
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null)
   const { playClick } = useSound()
   const cursorGlowRef = useCursorGlow()
-  const router = useRouter()
   const isNavigating = useRef(false)
 
   useEffect(() => {
@@ -291,15 +289,9 @@ export function TacticalView({ selectedRole, onBack, onModuleOpen }: TacticalVie
       setTimeout(() => { isNavigating.current = false }, 600)
       
       playClick()
-      
-      // Contact Channels uses route-based navigation
-      if (moduleId === "contact") {
-        router.push("/contact-channels")
-      } else {
-        onModuleOpen?.(moduleId)
-      }
+      onModuleOpen?.(moduleId)
     },
-    [playClick, onModuleOpen, router]
+    [playClick, onModuleOpen]
   )
 
   const handleBack = useCallback(() => {

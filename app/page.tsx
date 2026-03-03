@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useCallback } from "react"
 import { CharacterSelect } from "@/components/character-select"
 import { ModeSelect } from "@/components/mode-select"
 import { CinematicLoader } from "@/components/cinematic-loader"
@@ -10,6 +9,7 @@ import { AgentProfile } from "@/components/agent-profile"
 import { CoreAbilities } from "@/components/core-abilities"
 import { MissionLog } from "@/components/mission-log"
 import { SquadsAlliances } from "@/components/squads-alliances"
+import { ContactChannels } from "@/components/contact-channels"
 import { StatusBar } from "@/components/status-bar"
 import { Scanlines } from "@/components/scanlines"
 import { GridBackground } from "@/components/grid-background"
@@ -17,26 +17,11 @@ import { SoundToggle } from "@/components/sound-toggle"
 import { SoundProvider } from "@/hooks/use-sound"
 
 export default function Home() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [screen, setScreen] = useState<"character" | "mode" | "loading" | "tactical" | "profile" | "abilities" | "missions" | "alliances">("character")
+  const [screen, setScreen] = useState<"character" | "mode" | "loading" | "tactical" | "profile" | "abilities" | "missions" | "alliances" | "contact">("character")
   const [selectedRole, setSelectedRole] = useState<string>("")
   const [selectedModeLabel, setSelectedModeLabel] = useState<string>("")
   const [selectedModeId, setSelectedModeId] = useState<string>("")
   const [transitioning, setTransitioning] = useState(false)
-
-  // Handle ?screen= query param for explicit route navigation
-  useEffect(() => {
-    const screenParam = searchParams.get("screen")
-    if (screenParam === "alliances") {
-      setScreen("alliances")
-      // Clear the URL param without triggering a navigation
-      window.history.replaceState({}, "", "/")
-    } else if (screenParam === "missions") {
-      setScreen("missions")
-      window.history.replaceState({}, "", "/")
-    }
-  }, [searchParams])
 
   const handleRoleConfirmed = useCallback((role: string) => {
     setTransitioning(true)
@@ -99,6 +84,8 @@ export default function Home() {
         setScreen("missions")
       } else if (moduleId === "alliances" || moduleId === "squads") {
         setScreen("alliances")
+      } else if (moduleId === "contact") {
+        setScreen("contact")
       }
       setTransitioning(false)
     }, 600)
@@ -179,11 +166,28 @@ export default function Home() {
   const handleAlliancesNext = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
-      router.push("/contact-channels")
+      setScreen("contact")
+      setTransitioning(false)
     }, 600)
-  }, [router])
+  }, [])
 
   const handleAlliancesBack = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("tactical")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
+  const handleContactPrev = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("alliances")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
+  const handleContactBack = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
       setScreen("tactical")
@@ -199,7 +203,7 @@ export default function Home() {
         <Scanlines />
 
         {/* Sound toggle (hidden in tactical view since it has its own) */}
-        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && <SoundToggle />}
+        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && screen !== "contact" && <SoundToggle />}
 
         {/* Radial vignette */}
         <div
@@ -306,6 +310,20 @@ export default function Home() {
               onPrev={handleAlliancesPrev}
               onNext={handleAlliancesNext}
               onBack={handleAlliancesBack}
+            />
+          </div>
+        )}
+
+        {/* Contact Channels (full-screen, isolated) */}
+        {screen === "contact" && (
+          <div
+            className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
+              transitioning ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            <ContactChannels
+              onPrev={handleContactPrev}
+              onBack={handleContactBack}
             />
           </div>
         )}

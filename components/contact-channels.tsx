@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { ChevronLeft, ChevronRight, ArrowLeft, Mail, Github, Linkedin } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
 
@@ -293,10 +292,14 @@ function ContactItem({ icon: Icon, label, value, href, delay, mounted }: Contact
 
 // ===================== MAIN COMPONENT =====================
 
-export function ContactChannels() {
+interface ContactChannelsProps {
+  onPrev?: () => void
+  onBack?: () => void
+}
+
+export function ContactChannels({ onPrev, onBack }: ContactChannelsProps) {
   const [mounted, setMounted] = useState(false)
   const { playClick } = useSound()
-  const router = useRouter()
   const isNavigating = useRef(false)
 
   useEffect(() => {
@@ -308,23 +311,15 @@ export function ContactChannels() {
     if (isNavigating.current) return
     isNavigating.current = true
     playClick()
-    router.push("/?screen=alliances")
-  }, [playClick, router])
-
-  const handleNext = useCallback(() => {
-    if (isNavigating.current) return
-    isNavigating.current = true
-    playClick()
-    router.push("/?screen=missions")
-  }, [playClick, router])
+    onPrev?.()
+  }, [playClick, onPrev])
 
   const handleBack = useCallback(() => {
     if (isNavigating.current) return
     isNavigating.current = true
     playClick()
-    // Navigate explicitly to Squads & Alliances - never use router.back()
-    router.push("/?screen=alliances")
-  }, [playClick, router])
+    onBack?.()
+  }, [playClick, onBack])
 
   return (
     <div
