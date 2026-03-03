@@ -180,14 +180,14 @@ export function BattleScreen() {
               bottom: "100%",
               left: "50%",
               transform: "translateX(-50%)",
-              marginBottom: "10px",
+              marginBottom: "6px",
             }}
           >
             <span
               className="font-mono uppercase"
               style={{
-                fontSize: "30px",
-                letterSpacing: "3px",
+                fontSize: "22px",
+                letterSpacing: "2px",
                 fontWeight: 600,
                 color: "#00CFFF",
                 whiteSpace: "nowrap",
