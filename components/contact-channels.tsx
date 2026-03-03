@@ -426,7 +426,7 @@ export function ContactChannels({ onPrev, onBack }: ContactChannelsProps) {
 
         {/* ---- RIGHT: CHARACTER WITH AURA ---- */}
         <div
-          className={`relative flex h-full flex-1 items-end justify-end transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          className={`relative flex h-full flex-1 items-end justify-end overflow-hidden transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
             mounted ? "translate-x-0 scale-100 opacity-100" : "translate-x-12 scale-[0.92] opacity-0"
           }`}
           style={{ background: "transparent" }}
@@ -436,8 +436,9 @@ export function ContactChannels({ onPrev, onBack }: ContactChannelsProps) {
           <div
             className="animate-avatar-float relative z-[10]"
             style={{
-              height: "90vh",
+              height: "110vh",
               width: "auto",
+              transform: "translateX(5%)",
               background: "transparent",
             }}
           >
