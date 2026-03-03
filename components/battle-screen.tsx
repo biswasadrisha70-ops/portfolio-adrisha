@@ -49,13 +49,13 @@ export function BattleScreen() {
 
       {/* ============= AVATAR TARGETS ============= */}
       
-      {/* Avatar 1 - Far Left */}
+      {/* Avatar 1 - Far Left Sniper */}
       <div
-        className="pointer-events-none absolute z-[3]"
+        className="pointer-events-none absolute z-[4]"
         style={{
-          left: "12%",
-          bottom: "30%",
-          transform: "translateX(-50%) scale(0.85)",
+          left: "8%",
+          bottom: "18%",
+          transform: "translateX(-50%) scale(1.85)",
           height: "clamp(180px, 28vh, 320px)",
           width: "auto",
         }}
@@ -70,13 +70,13 @@ export function BattleScreen() {
         />
       </div>
 
-      {/* Avatar 2 - Front Left (closer to viewer) */}
+      {/* Avatar 2 - Front Left Kneeling */}
       <div
-        className="pointer-events-none absolute z-[4]"
+        className="pointer-events-none absolute z-[5]"
         style={{
-          left: "28%",
-          bottom: "24%",
-          transform: "translateX(-50%) scale(0.95)",
+          left: "26%",
+          bottom: "14%",
+          transform: "translateX(-50%) scale(2.15)",
           height: "clamp(200px, 32vh, 360px)",
           width: "auto",
         }}
@@ -91,13 +91,13 @@ export function BattleScreen() {
         />
       </div>
 
-      {/* Avatar 3 - Center (primary target) */}
+      {/* Avatar 3 - Center Primary Target */}
       <div
-        className="pointer-events-none absolute z-[5]"
+        className="pointer-events-none absolute z-[6]"
         style={{
           left: "50%",
-          bottom: "30%",
-          transform: "translateX(-50%) scale(1.05)",
+          bottom: "18%",
+          transform: "translateX(-50%) scale(2.35)",
           height: "clamp(220px, 35vh, 400px)",
           width: "auto",
         }}
@@ -112,13 +112,13 @@ export function BattleScreen() {
         />
       </div>
 
-      {/* Avatar 4 - Mid Right (elevated depth) */}
+      {/* Avatar 4 - Mid Right Elevated */}
       <div
-        className="pointer-events-none absolute z-[3]"
+        className="pointer-events-none absolute z-[4]"
         style={{
-          left: "70%",
-          bottom: "36%",
-          transform: "translateX(-50%) scale(0.9)",
+          left: "74%",
+          bottom: "22%",
+          transform: "translateX(-50%) scale(1.95)",
           height: "clamp(190px, 30vh, 340px)",
           width: "auto",
         }}
@@ -133,13 +133,13 @@ export function BattleScreen() {
         />
       </div>
 
-      {/* Avatar 5 - Far Right */}
+      {/* Avatar 5 - Far Right Rifle */}
       <div
-        className="pointer-events-none absolute z-[3]"
+        className="pointer-events-none absolute z-[4]"
         style={{
-          left: "88%",
-          bottom: "30%",
-          transform: "translateX(-50%) scale(0.9)",
+          left: "92%",
+          bottom: "18%",
+          transform: "translateX(-50%) scale(1.85)",
           height: "clamp(190px, 30vh, 340px)",
           width: "auto",
         }}
