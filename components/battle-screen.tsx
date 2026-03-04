@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react"
 import Image from "next/image"
+import { SoundToggle } from "@/components/sound-toggle"
+import { ArrowLeft } from "lucide-react"
 
 // ===================== AVATAR TARGET DATA =====================
 const AVATAR_TARGETS = [
@@ -132,7 +134,7 @@ function HudLabelBox({ label }: { label: string }) {
         className="relative"
         style={{
           display: "inline-block",
-          padding: "2px 8px",
+          padding: "4px 8px",
           border: "1px solid rgba(0,200,255,0.9)",
           background: "linear-gradient(180deg, rgba(10,20,35,0.85), rgba(0,10,20,0.75))",
           backgroundImage:
@@ -202,7 +204,11 @@ const LABEL_EDGE_TRANSFORMS = [
 ]
 
 // ===================== MAIN COMPONENT =====================
-export function BattleScreen() {
+interface BattleScreenProps {
+  onBack?: () => void
+}
+
+export function BattleScreen({ onBack }: BattleScreenProps) {
   const [mounted, setMounted] = useState(false)
   const [gunVisible, setGunVisible] = useState(false)
 
@@ -272,6 +278,29 @@ export function BattleScreen() {
             "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.55) 85%, rgba(0,0,0,0.75) 100%)",
         }}
       />
+
+      {/* ============= BACK BUTTON (Top-left) ============= */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className={`group fixed left-5 top-5 z-[20] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-white/40 transition-all duration-500 hover:text-white/70 sm:left-8 sm:top-7 ${
+            mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+          }`}
+          aria-label="Back to mode select"
+        >
+          <ArrowLeft className="h-3 w-3 transition-transform duration-300 group-hover:-translate-x-1" />
+          <span>Back</span>
+        </button>
+      )}
+
+      {/* ============= SOUND TOGGLE (Top-right) ============= */}
+      <div
+        className={`fixed right-5 top-5 z-[20] sm:right-8 sm:top-7 transition-all duration-700 ${
+          mounted ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
+        }`}
+      >
+        <SoundToggle position="inline" />
+      </div>
 
       {/* ============= AVATAR TARGETS WITH AURA & ANCHORED LABELS ============= */}
       {AVATAR_TARGETS.map((avatar, index) => (

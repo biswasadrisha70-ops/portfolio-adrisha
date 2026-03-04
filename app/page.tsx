@@ -206,6 +206,14 @@ export default function Home() {
     }, 600)
   }, [])
 
+  const handleBattleBack = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("mode")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
   return (
     <SoundProvider>
       <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-background px-4 py-20 sm:px-6">
@@ -214,7 +222,7 @@ export default function Home() {
         <Scanlines />
 
         {/* Sound toggle (hidden in tactical view since it has its own) */}
-        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && screen !== "contact" && <SoundToggle />}
+        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && screen !== "contact" && screen !== "battle" && <SoundToggle />}
 
         {/* Radial vignette */}
         <div
@@ -347,7 +355,7 @@ export default function Home() {
               transitioning ? "opacity-0" : "opacity-100"
             }`}
           >
-            <BattleScreen />
+            <BattleScreen onBack={handleBattleBack} />
           </div>
         )}
 
