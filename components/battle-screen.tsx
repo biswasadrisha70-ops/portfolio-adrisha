@@ -484,9 +484,9 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 1px; }
         }
         @keyframes dissolve-out {
-          0% { filter: brightness(2) saturate(1.5); opacity: 1; transform: translateX(-50%) scale(var(--avatar-scale)); }
-          30% { filter: brightness(3) saturate(0.5); opacity: 0.7; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 1.02)); }
-          100% { filter: brightness(0.5) saturate(0) blur(8px); opacity: 0; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 0.95)); }
+          0% { filter: brightness(2) saturate(1.5); opacity: 1; }
+          30% { filter: brightness(3) saturate(0.5); opacity: 0.7; }
+          100% { filter: brightness(0.5) saturate(0) blur(8px); opacity: 0; }
         }
         @keyframes muzzle-flash {
           0% { transform: translate(-50%, -100%) scale(0.5); opacity: 1; }
@@ -558,10 +558,6 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
             height: avatar.height,
             width: "auto",
             zIndex: avatar.z,
-            ["--avatar-scale" as string]: avatar.scale,
-            ...(dissolveIndex === index
-              ? { animation: "dissolve-out 0.8s ease-out forwards" }
-              : {}),
           }}
         >
           {/* HUD label anchored above head */}
@@ -589,7 +585,13 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
             className={`relative h-full w-auto object-contain ${
               interactionLocked ? "pointer-events-none" : "pointer-events-auto cursor-crosshair"
             }`}
-            style={{ position: "relative", zIndex: 2 }}
+            style={{
+              position: "relative",
+              zIndex: 2,
+              ...(dissolveIndex === index
+                ? { animation: "dissolve-out 0.8s ease-out forwards" }
+                : {}),
+            }}
             onClick={(e) => handleAvatarClick(e, index)}
           />
         </div>
