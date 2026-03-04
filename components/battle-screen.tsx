@@ -556,7 +556,7 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
         <div
           ref={(el) => { avatarRefs.current[index] = el }}
           key={avatar.id}
-          className={`absolute inline-block ${interactionLocked ? "pointer-events-none" : "cursor-crosshair"}`}
+          className="pointer-events-none absolute inline-block"
           style={{
             left: avatar.left,
             bottom: avatar.bottom,
@@ -569,7 +569,6 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
               ? { animation: "dissolve-out 0.8s ease-out forwards" }
               : {}),
           }}
-          onClick={() => handleAvatarClick(index)}
         >
           {/* HUD label anchored above head */}
           <div
@@ -587,13 +586,16 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           {/* Red Aura Engine */}
           <RedAuraEngine />
           
-          {/* Avatar Image */}
+          {/* Avatar Image — sole click target */}
           <Image
             src={avatar.src}
             alt={`Target ${avatar.id}`}
             width={400}
             height={600}
-            className="relative h-full w-auto object-contain"
+            className={`relative h-full w-auto object-contain ${
+              interactionLocked ? "pointer-events-none" : "pointer-events-auto cursor-crosshair"
+            }`}
+            onClick={() => handleAvatarClick(index)}
             unoptimized
           />
         </div>
