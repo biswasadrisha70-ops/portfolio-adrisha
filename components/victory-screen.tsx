@@ -59,24 +59,6 @@ export function VictoryScreen({ onEscape }: VictoryScreenProps) {
         <SoundToggle position="inline" />
         <HelpButton />
       </div>
-
-      {/* Bottom Escape Instruction */}
-      <div
-        className={`fixed inset-x-0 bottom-8 z-[20] flex justify-center transition-all duration-1000 delay-500 ${
-          mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        }`}
-      >
-        <p
-          className="font-mono text-sm uppercase tracking-[0.25em] sm:text-base"
-          style={{
-            color: "rgba(255, 80, 80, 0.95)",
-            textShadow:
-              "0 0 10px rgba(255, 50, 50, 0.8), 0 0 20px rgba(255, 50, 50, 0.5), 0 0 30px rgba(255, 50, 50, 0.3)",
-          }}
-        >
-          Press ESCAPE to return to Mode Selection
-        </p>
-      </div>
     </div>
   )
 }

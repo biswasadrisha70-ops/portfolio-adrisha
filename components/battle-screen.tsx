@@ -482,14 +482,10 @@ export function BattleScreen({
       setHitAvatars((prev) => new Set(prev).add(index))
       setScore((prev) => {
         const newScore = Math.min(prev + 20, 100)
-        // Check for victory condition
-        if (newScore >= 100) {
-          // Delay victory screen to allow final animation to complete
-          setTimeout(() => {
-            if (onVictory) {
-              onVictory()
-            }
-          }, 1800)
+        // When score reaches 100%, set victoryPending flag (handled by parent)
+        // The actual redirect happens when user returns from the avatar page
+        if (newScore >= 100 && onVictory) {
+          onVictory()
         }
         return newScore
       })

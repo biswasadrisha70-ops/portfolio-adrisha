@@ -30,6 +30,7 @@ export default function Home() {
   // Battle Mode score state (persists across battle-related page navigation)
   const [battleScore, setBattleScore] = useState(0)
   const [battleHitAvatars, setBattleHitAvatars] = useState<Set<number>>(new Set())
+  const [victoryPending, setVictoryPending] = useState(false)
 
   const handleRoleConfirmed = useCallback((role: string) => {
     setTransitioning(true)
@@ -225,9 +226,10 @@ export default function Home() {
   const handleBattleBack = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
-      // Reset battle score when exiting battle mode
+      // Reset battle score and victoryPending when exiting battle mode
       setBattleScore(0)
       setBattleHitAvatars(new Set())
+      setVictoryPending(false)
       setScreen("mode")
       setTransitioning(false)
     }, 600)
@@ -237,10 +239,16 @@ export default function Home() {
   const handleBackToBattle = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
-      setScreen("battle")
+      // Check if victory is pending (score reached 100%)
+      if (victoryPending) {
+        // Redirect to victory screen instead of battle
+        setScreen("victory")
+      } else {
+        setScreen("battle")
+      }
       setTransitioning(false)
     }, 600)
-  }, [])
+  }, [victoryPending])
 
   const handleBattleNavigate = useCallback((page: string) => {
     const validScreens = ["profile", "abilities", "missions", "alliances", "contact"] as const
@@ -251,20 +259,18 @@ export default function Home() {
     }
   }, [])
 
+  // Called when score reaches 100% - sets pending flag instead of immediate redirect
   const handleVictory = useCallback(() => {
-    setTransitioning(true)
-    setTimeout(() => {
-      setScreen("victory")
-      setTransitioning(false)
-    }, 600)
+    setVictoryPending(true)
   }, [])
 
   const handleVictoryEscape = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
-      // Reset battle score when exiting victory screen
+      // Reset battle score and victoryPending when exiting victory screen
       setBattleScore(0)
       setBattleHitAvatars(new Set())
+      setVictoryPending(false)
       setScreen("mode")
       setTransitioning(false)
     }, 600)
