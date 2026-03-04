@@ -240,9 +240,8 @@ function ContactItem({ icon, label, value, href, delay, mounted }: ContactItemPr
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group flex items-center gap-4 py-4 transition-all duration-500 hover:translate-x-1 ${
-        mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-      }`}
+      className={`group flex items-center gap-4 py-4 transition-all duration-500 hover:translate-x-1 ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+        }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-sm border border-danger/20 bg-danger/[0.04] transition-all duration-300 group-hover:border-danger/40 group-hover:bg-danger/[0.08] group-hover:shadow-[0_0_20px_rgba(200,50,45,0.15)]">
@@ -346,9 +345,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
         {/* ---- LEFT: CONTACT INFO PANEL ---- */}
         <div
-          className={`relative z-30 flex w-[42%] max-w-xl flex-col justify-center pr-8 transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-            mounted ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"
-          }`}
+          className={`relative z-30 flex w-[42%] max-w-xl flex-col justify-center pr-8 transition-all duration-1000 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${mounted ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"
+            }`}
         >
           {/* Angular HUD panel */}
           <div
@@ -382,9 +380,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
               {/* Tagline */}
               <p
-                className={`mt-6 font-mono text-[10px] uppercase tracking-[0.18em] text-danger/50 transition-all duration-700 sm:text-[11px] ${
-                  mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-                }`}
+                className={`mt-6 font-mono text-[10px] uppercase tracking-[0.18em] text-danger/50 transition-all duration-700 sm:text-[11px] ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+                  }`}
                 style={{ transitionDelay: "350ms" }}
               >
                 Establish Secure Connection
@@ -392,9 +389,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
               {/* Divider */}
               <div
-                className={`mt-5 h-px w-2/3 bg-gradient-to-r from-danger/30 to-transparent transition-all duration-700 ${
-                  mounted ? "w-2/3 opacity-100" : "w-0 opacity-0"
-                }`}
+                className={`mt-5 h-px w-2/3 bg-gradient-to-r from-danger/30 to-transparent transition-all duration-700 ${mounted ? "w-2/3 opacity-100" : "w-0 opacity-0"
+                  }`}
                 style={{ transitionDelay: "450ms" }}
               />
 
@@ -408,20 +404,20 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
                   delay={550}
                   mounted={mounted}
                 />
-                
+
                 <div className="h-px w-full bg-gradient-to-r from-danger/15 via-danger/8 to-transparent" />
-                
+
                 <ContactItem
                   icon={<Github className="h-4 w-4 text-danger/50 transition-colors group-hover:text-danger/80" />}
                   label="GitHub"
-                  value="github.com/adrisha-dev"
-                  href="https://github.com/adrisha-dev"
+                  value="github.com/Adrisha-01"
+                  href="https://github.com/biswasadrisha70-ops"
                   delay={650}
                   mounted={mounted}
                 />
-                
+
                 <div className="h-px w-full bg-gradient-to-r from-danger/15 via-danger/8 to-transparent" />
-                
+
                 <ContactItem
                   icon={<Linkedin className="h-4 w-4 text-danger/50 transition-colors group-hover:text-danger/80" />}
                   label="LinkedIn"
@@ -437,9 +433,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
         {/* ---- RIGHT: CHARACTER WITH AURA ---- */}
         <div
-          className={`relative flex h-full flex-1 items-end justify-end overflow-hidden transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-            mounted ? "translate-x-0 scale-100 opacity-100" : "translate-x-12 scale-[0.92] opacity-0"
-          }`}
+          className={`relative flex h-full flex-1 items-end justify-end overflow-hidden transition-all duration-[1200ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] ${mounted ? "translate-x-0 scale-100 opacity-100" : "translate-x-12 scale-[0.92] opacity-0"
+            }`}
           style={{ background: "transparent" }}
         >
           <ContactAuraEngine />
@@ -460,7 +455,7 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
               height={900}
               unoptimized
               className="h-full w-auto object-contain drop-shadow-[0_0_90px_rgba(180,40,35,0.4)]"
-              style={{ 
+              style={{
                 objectPosition: "bottom right",
               }}
               priority
@@ -482,9 +477,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
       {/* ====== BACK BUTTON (Top-left, red glow) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${
-          mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-        }`}
+        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+          }`}
         style={{
           color: "rgba(220,60,60,0.7)",
           textShadow: "0 0 8px rgba(200,40,40,0.45)",
@@ -497,9 +491,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
       {/* ====== TOP-RIGHT: Sound + Help ====== */}
       <div
-        className={`fixed right-5 top-6 z-[100] flex items-center gap-3 sm:right-8 sm:top-7 transition-all duration-700 ${
-          mounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
-        }`}
+        className={`fixed right-5 top-6 z-[100] flex items-center gap-3 sm:right-8 sm:top-7 transition-all duration-700 ${mounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
+          }`}
       >
         <SoundToggle position="inline" />
         <HelpButton />
@@ -508,9 +501,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
       {/* ====== BOTTOM NAV ARROWS (hidden in Battle Mode) ====== */}
       {source !== "battle" && (
         <div
-          className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
-            mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-          }`}
+          className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
         >
           {/* Left arrow -- to Squads & Alliances */}
           <button
@@ -540,9 +532,8 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
 
       {/* ====== BOTTOM VERSION TAG ====== */}
       <div
-        className={`fixed bottom-5 right-5 z-20 transition-all duration-700 delay-700 sm:bottom-7 sm:right-8 ${
-          mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        }`}
+        className={`fixed bottom-5 right-5 z-20 transition-all duration-700 delay-700 sm:bottom-7 sm:right-8 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          }`}
       >
         <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/20">
           Contact v1.0
