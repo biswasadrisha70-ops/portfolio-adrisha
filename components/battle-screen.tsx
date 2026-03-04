@@ -173,7 +173,7 @@ function HudLabelBox({ label }: { label: string }) {
           className="uppercase"
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: "11px",
+            fontSize: "8px",
             letterSpacing: "2px",
             fontWeight: 600,
             color: "#00CFFF",
