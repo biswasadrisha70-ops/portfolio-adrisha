@@ -334,8 +334,8 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
   const [fadeOut, setFadeOut] = useState(false)
   const [interactionLocked, setInteractionLocked] = useState(false)
 
-  // Refs
-  const avatarRefs = useRef<(HTMLDivElement | null)[]>([])
+  // Refs — store the actual <img> DOM node for each avatar
+  const avatarRefs = useRef<(HTMLElement | null)[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const laserAudioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -362,20 +362,26 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
     if (interactionLocked) return
     setInteractionLocked(true)
 
-    // Always recompute from the clicked avatar's image element
+    // Always recompute from the clicked avatar's actual <img> element
     const avatarImgEl = avatarRefs.current[index]
-    if (!avatarImgEl) return
+    if (!avatarImgEl) {
+      console.log("[v0] No ref for avatar", index)
+      setInteractionLocked(false)
+      return
+    }
 
-    // Get fresh bounding rect directly from the image element (not the scaled container)
+    // Get fresh bounding rect directly from the <img> element
     const imgRect = avatarImgEl.getBoundingClientRect()
 
-    // Gun position (bottom center of viewport)
+    // Gun muzzle position (bottom center of viewport)
     const gunX = window.innerWidth / 2
     const gunY = window.innerHeight - 60
 
-    // Target: center-x of the actual image, chest-level (45% from top) of the actual image
+    // Target: horizontal center + chest-level (45% down from top)
     const targetX = imgRect.left + imgRect.width / 2
     const targetY = imgRect.top + imgRect.height * 0.45
+
+    console.log("[v0] LASER TARGET", AVATAR_LABELS[index].label, { targetX, targetY, gunX, gunY, imgRect: { left: imgRect.left, top: imgRect.top, width: imgRect.width, height: imgRect.height } })
 
     // Play laser sound
     if (soundEnabled && laserAudioRef.current) {
@@ -419,6 +425,13 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
 
           // 6. Navigate after fade (400ms)
           setTimeout(() => {
+            // Reset all laser/hit state
+            setLaserStart({ x: 0, y: 0 })
+            setLaserEnd({ x: 0, y: 0 })
+            setDissolveIndex(null)
+            setFadeOut(false)
+            setInteractionLocked(false)
+
             if (onNavigate) {
               onNavigate(AVATAR_LABELS[index].page)
             }
@@ -587,18 +600,17 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           <RedAuraEngine />
           
           {/* Avatar Image — sole click target & laser ref */}
-          <Image
-            ref={(el) => { avatarRefs.current[index] = el as unknown as HTMLDivElement }}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={(el) => { avatarRefs.current[index] = el }}
             src={avatar.src}
             alt={`Target ${avatar.id}`}
-            width={400}
-            height={600}
             className={`relative h-full w-auto object-contain ${
               interactionLocked ? "pointer-events-none" : "pointer-events-auto cursor-crosshair"
             }`}
             style={{ position: "relative", zIndex: 2 }}
             onClick={() => handleAvatarClick(index)}
-            unoptimized
+            draggable={false}
           />
         </div>
       ))}
