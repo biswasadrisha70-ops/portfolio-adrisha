@@ -8,11 +8,11 @@ import { useSound } from "@/hooks/use-sound"
 
 // ===================== AVATAR TARGET DATA =====================
 const AVATAR_TARGETS = [
-  { id: 1, src: "/images/avatar1.png", left: "10%", bottom: "8%", scale: 2.4, height: "clamp(180px, 28vh, 320px)", z: 6 },
+  { id: 1, src: "/images/avatar1.png", left: "10%", bottom: "8%", scale: 2.4, height: "clamp(180px, 28vh, 320px)", z: 4 },
   { id: 2, src: "/images/avatar2.png", left: "28%", bottom: "5%", scale: 2.8, height: "clamp(200px, 32vh, 360px)", z: 5 },
-  { id: 3, src: "/images/avatar3.png", left: "50%", bottom: "10%", scale: 3.0, height: "clamp(220px, 35vh, 400px)", z: 4 },
-  { id: 4, src: "/images/avatar4.png", left: "72%", bottom: "12%", scale: 2.5, height: "clamp(190px, 30vh, 340px)", z: 5 },
-  { id: 5, src: "/images/avatar5.png", left: "90%", bottom: "8%", scale: 2.4, height: "clamp(190px, 30vh, 340px)", z: 6 },
+  { id: 3, src: "/images/avatar3.png", left: "50%", bottom: "10%", scale: 3.0, height: "clamp(220px, 35vh, 400px)", z: 6 },
+  { id: 4, src: "/images/avatar4.png", left: "72%", bottom: "12%", scale: 2.5, height: "clamp(190px, 30vh, 340px)", z: 4 },
+  { id: 5, src: "/images/avatar5.png", left: "90%", bottom: "8%", scale: 2.4, height: "clamp(190px, 30vh, 340px)", z: 4 },
 ]
 
 // ===================== AVATAR-ANCHORED HUD LABELS =====================
@@ -334,14 +334,8 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
   const [fadeOut, setFadeOut] = useState(false)
   const [interactionLocked, setInteractionLocked] = useState(false)
 
-  // Score tracking
-  const [hitAvatars, setHitAvatars] = useState<Record<string, boolean>>({
-    alliances: false, missions: false, profile: false, abilities: false, contact: false,
-  })
-  const [score, setScore] = useState(0)
-  const [showVictory, setShowVictory] = useState(false)
-
   // Refs
+  const avatarRefs = useRef<(HTMLDivElement | null)[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const laserAudioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -364,52 +358,24 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
     }
   }, [])
 
-  // ESC key returns to mode selection from victory screen
-  useEffect(() => {
-    if (!showVictory) return
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && onBack) {
-        onBack()
-      }
-    }
-    window.addEventListener("keydown", handleEsc)
-    return () => window.removeEventListener("keydown", handleEsc)
-  }, [showVictory, onBack])
-
-  const handleAvatarClick = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
-    e.stopPropagation()
-    if (interactionLocked || showVictory) return
+  const handleAvatarClick = useCallback((index: number) => {
+    if (interactionLocked) return
     setInteractionLocked(true)
 
-    // Resolve identity from the clicked element
-    const clickedImg = e.currentTarget
-    const avatarContainer = clickedImg.closest<HTMLElement>("[data-target]")
-    const targetPage = avatarContainer?.dataset.target ?? ""
-    const avatarIndex = AVATAR_TARGETS.findIndex(
-      (_, i) => AVATAR_LABELS[i].page === targetPage
-    )
+    const avatarEl = avatarRefs.current[index]
+    const container = containerRef.current
+    if (!avatarEl || !container) return
 
-    if (avatarIndex === -1) {
-      setInteractionLocked(false)
-      return
-    }
+    const avatarRect = avatarEl.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
 
-    // Track score — only count first-time hits
-    const isFirstHit = !hitAvatars[targetPage]
-    let newScore = score
-    if (isFirstHit) {
-      newScore = score + 20
-      setHitAvatars(prev => ({ ...prev, [targetPage]: true }))
-      setScore(newScore)
-    }
+    // Gun position (bottom center of screen)
+    const gunX = containerRect.width / 2
+    const gunY = containerRect.height - 60
 
-    // Use click coordinates directly
-    const targetX = e.clientX
-    const targetY = e.clientY
-
-    // Gun muzzle position (bottom center of viewport)
-    const gunX = window.innerWidth / 2
-    const gunY = window.innerHeight - 60
+    // Target center (avatar center-mass)
+    const targetX = avatarRect.left - containerRect.left + avatarRect.width / 2
+    const targetY = avatarRect.top - containerRect.top + avatarRect.height * 0.4
 
     // Play laser sound
     if (soundEnabled && laserAudioRef.current) {
@@ -438,12 +404,12 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
       // Spawn impact particles
       spawnParticles(targetX, targetY, 30)
 
-      // 4. Start dissolve after impact
+      // 4. Start dissolve after impact (250ms)
       setTimeout(() => {
         setHitPoint(null)
-        setDissolveIndex(avatarIndex)
+        setDissolveIndex(index)
 
-        // Spawn dissolve particles from click point
+        // Spawn dissolve particles from avatar center
         spawnParticles(targetX, targetY, 60)
 
         // 5. Fade transition after dissolve (700ms)
@@ -451,22 +417,16 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           setFadeOut(true)
           spawnTransitionParticles()
 
-          // 6. Check for victory or navigate
+          // 6. Navigate after fade (400ms)
           setTimeout(() => {
-            if (newScore >= 100) {
-              // Victory — show overlay instead of navigating
-              setFadeOut(false)
-              setDissolveIndex(null)
-              setInteractionLocked(true)
-              setShowVictory(true)
-            } else if (onNavigate) {
-              onNavigate(targetPage)
+            if (onNavigate) {
+              onNavigate(AVATAR_LABELS[index].page)
             }
           }, 400)
         }, 700)
       }, 250)
     }, 180)
-  }, [interactionLocked, showVictory, soundEnabled, score, hitAvatars, spawnParticles, spawnTransitionParticles, onNavigate])
+  }, [interactionLocked, soundEnabled, spawnParticles, spawnTransitionParticles, onNavigate])
 
   return (
     <div
@@ -531,22 +491,14 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 1px; }
         }
         @keyframes dissolve-out {
-          0% { filter: brightness(2) saturate(1.5); opacity: 1; }
-          30% { filter: brightness(3) saturate(0.5); opacity: 0.7; }
-          100% { filter: brightness(0.5) saturate(0) blur(8px); opacity: 0; }
+          0% { filter: brightness(2) saturate(1.5); opacity: 1; transform: translateX(-50%) scale(var(--avatar-scale)); }
+          30% { filter: brightness(3) saturate(0.5); opacity: 0.7; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 1.02)); }
+          100% { filter: brightness(0.5) saturate(0) blur(8px); opacity: 0; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 0.95)); }
         }
         @keyframes muzzle-flash {
           0% { transform: translate(-50%, -100%) scale(0.5); opacity: 1; }
           50% { transform: translate(-50%, -100%) scale(1.2); opacity: 0.9; }
           100% { transform: translate(-50%, -100%) scale(1.5); opacity: 0; }
-        }
-        @keyframes victory-fade-in {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-        @keyframes victory-scale-in {
-          0% { transform: scale(0.85); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
 
@@ -590,74 +542,21 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
         </button>
       )}
 
-      {/* ============= TOP-RIGHT HUD: SOUND + SCORE BAR ============= */}
+      {/* ============= SOUND TOGGLE (Top-right) ============= */}
       <div
-        className={`fixed right-5 top-5 z-[20] flex items-center gap-3 sm:right-8 sm:top-7 transition-all duration-700 ${
+        className={`fixed right-5 top-5 z-[20] sm:right-8 sm:top-7 transition-all duration-700 ${
           mounted ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
         }`}
       >
         <SoundToggle position="inline" />
-
-        {/* Score Bar */}
-        <div
-          className="relative flex items-center gap-2"
-          style={{
-            padding: "4px 10px 4px 8px",
-            border: "1px solid rgba(0,200,255,0.5)",
-            borderRadius: "4px",
-            background: "rgba(5,10,20,0.7)",
-            backdropFilter: "blur(4px)",
-            boxShadow: "0 0 8px rgba(0,200,255,0.2), inset 0 0 6px rgba(0,200,255,0.1)",
-            minWidth: 140,
-          }}
-        >
-          <span
-            className="font-mono uppercase"
-            style={{
-              fontSize: "9px",
-              letterSpacing: "1.5px",
-              color: "#00CFFF",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              textShadow: "0 0 4px rgba(0,200,255,0.5)",
-            }}
-          >
-            Score: {score}%
-          </span>
-          <div
-            className="relative flex-1 overflow-hidden"
-            style={{
-              height: 6,
-              borderRadius: 3,
-              background: "rgba(0,200,255,0.1)",
-              border: "1px solid rgba(0,200,255,0.25)",
-              minWidth: 60,
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                height: "100%",
-                width: `${score}%`,
-                borderRadius: 3,
-                background: "linear-gradient(90deg, rgba(0,180,255,0.8), rgba(0,220,255,1))",
-                boxShadow: "0 0 8px rgba(0,200,255,0.6)",
-                transition: "width 0.5s ease-out",
-              }}
-            />
-          </div>
-        </div>
       </div>
 
       {/* ============= AVATAR TARGETS WITH AURA & ANCHORED LABELS ============= */}
-      {/* Outer containers are pointer-events-none; only the <img> is clickable */}
       {AVATAR_TARGETS.map((avatar, index) => (
         <div
+          ref={(el) => { avatarRefs.current[index] = el }}
           key={avatar.id}
-          className="pointer-events-none absolute inline-block"
-          data-target={AVATAR_LABELS[index].page}
+          className={`absolute inline-block ${interactionLocked ? "pointer-events-none" : "cursor-crosshair"}`}
           style={{
             left: avatar.left,
             bottom: avatar.bottom,
@@ -665,7 +564,12 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
             height: avatar.height,
             width: "auto",
             zIndex: avatar.z,
+            ["--avatar-scale" as string]: avatar.scale,
+            ...(dissolveIndex === index
+              ? { animation: "dissolve-out 0.8s ease-out forwards" }
+              : {}),
           }}
+          onClick={() => handleAvatarClick(index)}
         >
           {/* HUD label anchored above head */}
           <div
@@ -683,23 +587,14 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           {/* Red Aura Engine */}
           <RedAuraEngine />
           
-          {/* Avatar Image — sole click target */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {/* Avatar Image */}
+          <Image
             src={avatar.src}
             alt={`Target ${avatar.id}`}
-            draggable={false}
-            className={`relative h-full w-auto object-contain ${
-              interactionLocked ? "pointer-events-none" : "pointer-events-auto cursor-crosshair"
-            }`}
-            style={{
-              position: "relative",
-              zIndex: 2,
-              ...(dissolveIndex === index
-                ? { animation: "dissolve-out 0.8s ease-out forwards" }
-                : {}),
-            }}
-            onClick={handleAvatarClick}
+            width={400}
+            height={600}
+            className="relative h-full w-auto object-contain"
+            unoptimized
           />
         </div>
       ))}
@@ -813,54 +708,6 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           transitionDuration: "400ms",
         }}
       />
-
-      {/* ============= VICTORY OVERLAY ============= */}
-      {showVictory && (
-        <div
-          className="fixed inset-0 z-[25] flex flex-col items-center justify-center"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.92)",
-            animation: "victory-fade-in 1s ease-out forwards",
-          }}
-        >
-          <div
-            className="relative"
-            style={{
-              maxWidth: "min(90vw, 700px)",
-              maxHeight: "min(80vh, 550px)",
-              animation: "victory-scale-in 0.8s ease-out 0.3s both",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/victory.png"
-              alt="Victory - You have successfully discovered the realm of Adrisha"
-              className="h-auto w-full object-contain"
-              draggable={false}
-              style={{
-                borderRadius: "8px",
-                boxShadow: "0 0 40px rgba(0,120,255,0.3), 0 0 80px rgba(0,80,200,0.15)",
-              }}
-            />
-          </div>
-
-          {/* ESC instruction */}
-          <p
-            className="font-mono uppercase"
-            style={{
-              marginTop: "32px",
-              fontSize: "11px",
-              letterSpacing: "3px",
-              fontWeight: 500,
-              color: "#00CFFF",
-              textShadow: "0 0 6px rgba(0,200,255,0.5)",
-              animation: "victory-fade-in 1s ease-out 1s both",
-            }}
-          >
-            Press ESC to return to Mode Selection
-          </p>
-        </div>
-      )}
 
       {/* ============= GUN OVERLAY WITH ENERGY CROSS ============= */}
       <div
