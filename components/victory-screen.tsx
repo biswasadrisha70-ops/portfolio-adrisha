@@ -34,7 +34,7 @@ export function VictoryScreen({ onEscape }: VictoryScreenProps) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black">
-      {/* Victory Background Image - maintains full vertical visibility, crops horizontally only */}
+      {/* Victory Background Image - entire image always visible, no cropping */}
       <div
         className={`fixed inset-0 z-0 flex items-center justify-center transition-opacity duration-1000 ease-out ${
           mounted ? "opacity-100" : "opacity-0"
@@ -45,8 +45,7 @@ export function VictoryScreen({ onEscape }: VictoryScreenProps) {
           alt="Victory"
           width={1920}
           height={1080}
-          className="h-full w-auto min-w-full object-cover"
-          style={{ objectPosition: "center" }}
+          className="max-h-full max-w-full object-contain"
           priority
         />
       </div>
