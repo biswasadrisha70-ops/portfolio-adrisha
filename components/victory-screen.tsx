@@ -34,17 +34,18 @@ export function VictoryScreen({ onEscape }: VictoryScreenProps) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black">
-      {/* Victory Background Image */}
+      {/* Victory Background Image - maintains full vertical visibility, crops horizontally only */}
       <div
-        className={`fixed inset-0 z-0 transition-opacity duration-1000 ease-out ${
+        className={`fixed inset-0 z-0 flex items-center justify-center transition-opacity duration-1000 ease-out ${
           mounted ? "opacity-100" : "opacity-0"
         }`}
       >
         <Image
           src="/images/victory.png"
           alt="Victory"
-          fill
-          className="object-cover"
+          width={1920}
+          height={1080}
+          className="h-full w-auto min-w-full object-cover"
           style={{ objectPosition: "center" }}
           priority
         />
