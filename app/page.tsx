@@ -27,6 +27,10 @@ export default function Home() {
   const [transitioning, setTransitioning] = useState(false)
   const [pageSource, setPageSource] = useState<"tactical" | "battle">("tactical")
 
+  // Battle Mode score state (persists across battle-related page navigation)
+  const [battleScore, setBattleScore] = useState(0)
+  const [battleHitAvatars, setBattleHitAvatars] = useState<Set<number>>(new Set())
+
   const handleRoleConfirmed = useCallback((role: string) => {
     setTransitioning(true)
     setSelectedRole(role)
@@ -221,6 +225,9 @@ export default function Home() {
   const handleBattleBack = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
+      // Reset battle score when exiting battle mode
+      setBattleScore(0)
+      setBattleHitAvatars(new Set())
       setScreen("mode")
       setTransitioning(false)
     }, 600)
@@ -255,6 +262,9 @@ export default function Home() {
   const handleVictoryEscape = useCallback(() => {
     setTransitioning(true)
     setTimeout(() => {
+      // Reset battle score when exiting victory screen
+      setBattleScore(0)
+      setBattleHitAvatars(new Set())
       setScreen("mode")
       setTransitioning(false)
     }, 600)
@@ -412,7 +422,15 @@ export default function Home() {
               transitioning ? "opacity-0" : "opacity-100"
             }`}
           >
-            <BattleScreen onBack={handleBattleBack} onNavigate={handleBattleNavigate} onVictory={handleVictory} />
+            <BattleScreen 
+              onBack={handleBattleBack} 
+              onNavigate={handleBattleNavigate} 
+              onVictory={handleVictory}
+              score={battleScore}
+              setScore={setBattleScore}
+              hitAvatars={battleHitAvatars}
+              setHitAvatars={setBattleHitAvatars}
+            />
           </div>
         )}
 

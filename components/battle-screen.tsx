@@ -393,16 +393,25 @@ interface BattleScreenProps {
   onBack?: () => void
   onNavigate?: (page: string) => void
   onVictory?: () => void
+  // Score state is managed by parent for persistence
+  score: number
+  setScore: React.Dispatch<React.SetStateAction<number>>
+  hitAvatars: Set<number>
+  setHitAvatars: React.Dispatch<React.SetStateAction<Set<number>>>
 }
 
-export function BattleScreen({ onBack, onNavigate, onVictory }: BattleScreenProps) {
+export function BattleScreen({ 
+  onBack, 
+  onNavigate, 
+  onVictory,
+  score,
+  setScore,
+  hitAvatars,
+  setHitAvatars
+}: BattleScreenProps) {
   const [mounted, setMounted] = useState(false)
   const [gunVisible, setGunVisible] = useState(false)
   const { enabled: soundEnabled } = useSound()
-
-  // Score state
-  const [score, setScore] = useState(0)
-  const [hitAvatars, setHitAvatars] = useState<Set<number>>(new Set())
 
   // Laser state
   const [laserActive, setLaserActive] = useState(false)
