@@ -268,9 +268,11 @@ interface ContactChannelsProps {
   onNext?: () => void
   /** Return to Tactical Hub */
   onBack?: () => void
+  /** Source mode: "tactical" shows bottom nav, "battle" hides it */
+  source?: "tactical" | "battle"
 }
 
-export function ContactChannels({ onPrev, onNext, onBack }: ContactChannelsProps) {
+export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }: ContactChannelsProps) {
   const [mounted, setMounted] = useState(false)
   const { playClick } = useSound()
 
@@ -487,36 +489,38 @@ export function ContactChannels({ onPrev, onNext, onBack }: ContactChannelsProps
         <span>Back</span>
       </button>
 
-      {/* ====== BOTTOM NAV ARROWS ====== */}
-      <div
-        className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
-          mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-        }`}
-      >
-        {/* Left arrow -- to Squads & Alliances */}
-        <button
-          onClick={handlePrev}
-          className="group flex cursor-pointer items-center justify-center border border-danger/20 bg-[#0a0a0f]/70 p-3 backdrop-blur-sm transition-all duration-400 hover:border-danger/40 hover:bg-danger/[0.06]"
-          style={{
-            clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
-          }}
-          aria-label="Navigate to Squads and Alliances"
+      {/* ====== BOTTOM NAV ARROWS (hidden in Battle Mode) ====== */}
+      {source !== "battle" && (
+        <div
+          className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
+            mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          }`}
         >
-          <ChevronLeft className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:-translate-x-0.5" />
-        </button>
+          {/* Left arrow -- to Squads & Alliances */}
+          <button
+            onClick={handlePrev}
+            className="group flex cursor-pointer items-center justify-center border border-danger/20 bg-[#0a0a0f]/70 p-3 backdrop-blur-sm transition-all duration-400 hover:border-danger/40 hover:bg-danger/[0.06]"
+            style={{
+              clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
+            }}
+            aria-label="Navigate to Squads and Alliances"
+          >
+            <ChevronLeft className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:-translate-x-0.5" />
+          </button>
 
-        {/* Right arrow -- to Profile */}
-        <button
-          onClick={handleNext}
-          className="group flex cursor-pointer items-center justify-center border border-danger/20 bg-[#0a0a0f]/70 p-3 backdrop-blur-sm transition-all duration-400 hover:border-danger/40 hover:bg-danger/[0.06]"
-          style={{
-            clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
-          }}
-          aria-label="Navigate to Profile"
-        >
-          <ChevronRight className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:translate-x-0.5" />
-        </button>
-      </div>
+          {/* Right arrow -- to Profile */}
+          <button
+            onClick={handleNext}
+            className="group flex cursor-pointer items-center justify-center border border-danger/20 bg-[#0a0a0f]/70 p-3 backdrop-blur-sm transition-all duration-400 hover:border-danger/40 hover:bg-danger/[0.06]"
+            style={{
+              clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
+            }}
+            aria-label="Navigate to Profile"
+          >
+            <ChevronRight className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:translate-x-0.5" />
+          </button>
+        </div>
+      )}
 
       {/* ====== BOTTOM VERSION TAG ====== */}
       <div

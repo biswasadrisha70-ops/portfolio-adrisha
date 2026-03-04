@@ -23,6 +23,7 @@ export default function Home() {
   const [selectedModeLabel, setSelectedModeLabel] = useState<string>("")
   const [selectedModeId, setSelectedModeId] = useState<string>("")
   const [transitioning, setTransitioning] = useState(false)
+  const [pageSource, setPageSource] = useState<"tactical" | "battle">("tactical")
 
   const handleRoleConfirmed = useCallback((role: string) => {
     setTransitioning(true)
@@ -77,6 +78,7 @@ export default function Home() {
   }, [])
 
   const handleModuleOpen = useCallback((moduleId: string) => {
+    setPageSource("tactical")
     setTransitioning(true)
     setTimeout(() => {
       if (moduleId === "profile") {
@@ -214,10 +216,20 @@ export default function Home() {
     }, 600)
   }, [])
 
+  // Generic "back to battle screen" handler for pages opened from Battle Mode
+  const handleBackToBattle = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("battle")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
   const handleBattleNavigate = useCallback((page: string) => {
     const validScreens = ["profile", "abilities", "missions", "alliances", "contact"] as const
     type ValidScreen = typeof validScreens[number]
     if (validScreens.includes(page as ValidScreen)) {
+      setPageSource("battle")
       setScreen(page as typeof screen)
     }
   }, [])
@@ -290,8 +302,9 @@ export default function Home() {
             }`}
           >
             <AgentProfile
-              onBack={handleProfileBack}
+              onBack={pageSource === "battle" ? handleBackToBattle : handleProfileBack}
               onNext={handleProfileNext}
+              source={pageSource}
             />
           </div>
         )}
@@ -306,7 +319,8 @@ export default function Home() {
             <CoreAbilities
               onPrev={handleAbilitiesPrev}
               onNext={handleAbilitiesNext}
-              onBack={handleAbilitiesBack}
+              onBack={pageSource === "battle" ? handleBackToBattle : handleAbilitiesBack}
+              source={pageSource}
             />
           </div>
         )}
@@ -321,7 +335,8 @@ export default function Home() {
             <MissionLog
               onPrev={handleMissionsPrev}
               onNext={handleMissionsNext}
-              onBack={handleMissionsBack}
+              onBack={pageSource === "battle" ? handleBackToBattle : handleMissionsBack}
+              source={pageSource}
             />
           </div>
         )}
@@ -336,7 +351,8 @@ export default function Home() {
             <SquadsAlliances
               onPrev={handleAlliancesPrev}
               onNext={handleAlliancesNext}
-              onBack={handleAlliancesBack}
+              onBack={pageSource === "battle" ? handleBackToBattle : handleAlliancesBack}
+              source={pageSource}
             />
           </div>
         )}
@@ -351,7 +367,8 @@ export default function Home() {
             <ContactChannels
               onPrev={handleContactPrev}
               onNext={handleContactNext}
-              onBack={handleContactBack}
+              onBack={pageSource === "battle" ? handleBackToBattle : handleContactBack}
+              source={pageSource}
             />
           </div>
         )}

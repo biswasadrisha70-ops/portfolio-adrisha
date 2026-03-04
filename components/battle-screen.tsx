@@ -711,10 +711,11 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
 
       {/* ============= GUN OVERLAY WITH ENERGY CROSS ============= */}
       <div
-        className={`pointer-events-none fixed bottom-0 left-1/2 z-[10] -translate-x-1/2 transition-opacity duration-500 ease-out ${
+        className={`pointer-events-none fixed bottom-0 z-[10] transition-opacity duration-500 ease-out ${
           gunVisible ? "opacity-100" : "opacity-0"
         }`}
         style={{
+          left: "50%",
           width: "clamp(300px, 40vw, 600px)",
           height: "auto",
           transform: `translateX(-50%) ${gunRecoil ? "translateY(6px)" : "translateY(0)"}`,

@@ -198,9 +198,11 @@ interface AgentProfileProps {
   onBack: () => void
   /** Navigate to the next module (Core Abilities) */
   onNext?: () => void
+  /** Source mode: "tactical" shows bottom nav, "battle" hides it */
+  source?: "tactical" | "battle"
 }
 
-export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
+export function AgentProfile({ onBack, onNext, source = "tactical" }: AgentProfileProps) {
   const [mounted, setMounted] = useState(false)
   const { playClick } = useSound()
 
@@ -364,8 +366,8 @@ export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
         </div>
       </div>
 
-      {/* ====== BOTTOM NAV ARROWS ====== */}
-      <div
+      {/* ====== BOTTOM NAV ARROWS (hidden in Battle Mode) ====== */}
+      {source !== "battle" && <div
         className={`fixed bottom-8 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-4 transition-all duration-700 delay-500 ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
         }`}
@@ -392,9 +394,9 @@ export function AgentProfile({ onBack, onNext }: AgentProfileProps) {
           aria-label="Navigate to Core Abilities"
         >
           <ChevronRight className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:translate-x-0.5" />
-        </button>
-      </div>
-
+      </button>
+      </div>}
+      
       {/* ====== BOTTOM VERSION TAG ====== */}
       <div
         className={`fixed bottom-5 right-5 z-20 transition-all duration-700 delay-700 sm:bottom-7 sm:right-8 ${
