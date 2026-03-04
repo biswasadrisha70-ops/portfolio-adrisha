@@ -304,7 +304,7 @@ export default function Home() {
         {/* Screen content with fade transition */}
         <div
           className={`relative z-20 w-full transition-all duration-500 ease-in-out ${
-            transitioning ? "scale-[0.98] opacity-0" : "scale-100 opacity-100"
+            transitioning ? "scale-[0.98] opacity-0" : "animate-page-enter scale-100 opacity-100"
           }`}
         >
           {screen === "character" ? (
@@ -330,7 +330,7 @@ export default function Home() {
         {screen === "tactical" && (
           <div
             className={`fixed inset-0 z-40 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <TacticalView
@@ -345,7 +345,7 @@ export default function Home() {
         {screen === "profile" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <AgentProfile
@@ -361,7 +361,7 @@ export default function Home() {
         {screen === "abilities" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <CoreAbilities
@@ -377,7 +377,7 @@ export default function Home() {
         {screen === "missions" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <MissionLog
@@ -393,7 +393,7 @@ export default function Home() {
         {screen === "alliances" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <SquadsAlliances
@@ -409,7 +409,7 @@ export default function Home() {
         {screen === "contact" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <ContactChannels
@@ -425,7 +425,7 @@ export default function Home() {
         {screen === "battle" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <BattleScreen 
@@ -444,7 +444,7 @@ export default function Home() {
         {screen === "victory" && (
           <div
             className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
-              transitioning ? "opacity-0" : "opacity-100"
+              transitioning ? "opacity-0" : "animate-page-enter opacity-100"
             }`}
           >
             <VictoryScreen onEscape={handleVictoryEscape} />

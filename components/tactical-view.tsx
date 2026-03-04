@@ -376,7 +376,7 @@ export function TacticalView({ selectedRole, onBack, onModuleOpen }: TacticalVie
       {onBack && (
         <button
           onClick={handleBack}
-          className={`group fixed left-5 top-[68px] z-[95] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-[72px] ${
+          className={`hover-glow-danger group fixed left-5 top-[68px] z-[95] flex cursor-pointer items-center gap-2 rounded px-2 py-1 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-[72px] ${
             mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
           }`}
           aria-label="Go back to mode select"

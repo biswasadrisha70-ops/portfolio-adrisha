@@ -477,7 +477,7 @@ export function ContactChannels({ onPrev, onNext, onBack, source = "tactical" }:
       {/* ====== BACK BUTTON (Top-left, red glow) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+        className={`hover-glow-danger group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 rounded px-2 py-1 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
           }`}
         style={{
           color: "rgba(220,60,60,0.7)",

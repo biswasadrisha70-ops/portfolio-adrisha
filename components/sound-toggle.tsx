@@ -23,7 +23,7 @@ export function SoundToggle({ position = "top-right" }: SoundToggleProps) {
         playClick()
         toggle()
       }}
-      className={`group z-50 flex cursor-pointer items-center gap-2.5 rounded border px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] backdrop-blur-sm transition-all duration-500 ${positionClasses} ${
+      className={`hover-glow group z-50 flex cursor-pointer items-center gap-2.5 rounded border px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] backdrop-blur-sm transition-all duration-500 ${positionClasses} ${
         enabled
           ? "border-primary/40 bg-primary/10 text-primary hover:border-primary/60 hover:bg-primary/15"
           : "border-border/40 bg-card/40 text-muted-foreground/50 hover:border-border/60 hover:text-muted-foreground/80"

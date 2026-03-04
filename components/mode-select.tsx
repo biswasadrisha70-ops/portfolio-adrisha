@@ -149,7 +149,7 @@ export function ModeSelect({ selectedRole, onBack, onModeConfirmed }: ModeSelect
       {/* Back button */}
       <button
         onClick={handleBack}
-        className={`group absolute left-6 top-6 z-30 flex cursor-pointer items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/60 transition-all duration-500 hover:text-danger sm:left-10 sm:top-10 ${
+        className={`hover-glow-danger group absolute left-6 top-6 z-30 flex cursor-pointer items-center gap-2 rounded px-2 py-1 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground/60 transition-all duration-500 hover:text-danger sm:left-10 sm:top-10 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
         aria-label="Go back to role selection"
@@ -239,7 +239,7 @@ export function ModeSelect({ selectedRole, onBack, onModeConfirmed }: ModeSelect
               <TiltCard key={mode.id} glowColor="var(--danger)">
                 <button
                   onClick={() => handleModeSelect(mode.id)}
-                  className={`group relative flex w-full cursor-pointer flex-col items-center gap-5 overflow-hidden rounded-lg border text-center backdrop-blur-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  className={`hover-glow-danger group relative flex w-full cursor-pointer flex-col items-center gap-5 overflow-hidden rounded-lg border text-center backdrop-blur-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                     isSelected
                       ? "border-danger/60 bg-danger/[0.06] shadow-[0_0_80px_-10px] shadow-danger-glow/30"
                       : "border-border/40 bg-card/40 hover:border-danger/40 hover:bg-card/60 hover:shadow-[0_0_60px_-15px] hover:shadow-danger-glow/20"

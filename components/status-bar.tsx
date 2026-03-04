@@ -24,6 +24,14 @@ export function StatusBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-border/40 bg-background/80 px-6 py-3 font-mono text-xs text-muted-foreground backdrop-blur-sm">
+      {/* Subtle ambient glow above status bar */}
+      <div
+        aria-hidden="true"
+        className="animate-ambient-glow-delayed pointer-events-none absolute -top-4 left-0 right-0 h-8"
+        style={{
+          background: "linear-gradient(to top, rgba(0,200,255,0.03) 0%, transparent 100%)",
+        }}
+      />
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
