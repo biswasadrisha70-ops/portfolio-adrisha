@@ -107,6 +107,15 @@ export function HelpButton() {
                     From Battle Mode it returns to Mode Selection. From inner pages it returns to the view you came from.
                   </p>
                 </section>
+
+                <section>
+                  <h3 className="mb-1.5 text-xs uppercase tracking-[0.2em]" style={{ color: "#00CFFF" }}>
+                    Victory Screen
+                  </h3>
+                  <p>
+                    On the Victory page, pressing <strong className="text-white/90">ESC</strong> will return you to the Mode Selection page.
+                  </p>
+                </section>
               </div>
             </div>
           </div>
