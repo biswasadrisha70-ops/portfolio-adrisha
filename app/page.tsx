@@ -11,6 +11,7 @@ import { MissionLog } from "@/components/mission-log"
 import { SquadsAlliances } from "@/components/squads-alliances"
 import { ContactChannels } from "@/components/contact-channels"
 import { BattleScreen } from "@/components/battle-screen"
+import { VictoryScreen } from "@/components/victory-screen"
 import { StatusBar } from "@/components/status-bar"
 import { Scanlines } from "@/components/scanlines"
 import { GridBackground } from "@/components/grid-background"
@@ -19,7 +20,7 @@ import { HelpButton } from "@/components/help-button"
 import { SoundProvider } from "@/hooks/use-sound"
 
 export default function Home() {
-  const [screen, setScreen] = useState<"character" | "mode" | "loading" | "tactical" | "profile" | "abilities" | "missions" | "alliances" | "contact" | "battle">("character")
+  const [screen, setScreen] = useState<"character" | "mode" | "loading" | "tactical" | "profile" | "abilities" | "missions" | "alliances" | "contact" | "battle" | "victory">("character")
   const [selectedRole, setSelectedRole] = useState<string>("")
   const [selectedModeLabel, setSelectedModeLabel] = useState<string>("")
   const [selectedModeId, setSelectedModeId] = useState<string>("")
@@ -243,6 +244,22 @@ export default function Home() {
     }
   }, [])
 
+  const handleVictory = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("victory")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
+  const handleVictoryEscape = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("mode")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
   return (
     <SoundProvider>
       <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-background px-4 py-20 sm:px-6">
@@ -395,7 +412,18 @@ export default function Home() {
               transitioning ? "opacity-0" : "opacity-100"
             }`}
           >
-            <BattleScreen onBack={handleBattleBack} onNavigate={handleBattleNavigate} />
+            <BattleScreen onBack={handleBattleBack} onNavigate={handleBattleNavigate} onVictory={handleVictory} />
+          </div>
+        )}
+
+        {/* Victory Screen */}
+        {screen === "victory" && (
+          <div
+            className={`fixed inset-0 z-50 transition-opacity duration-700 ease-in-out ${
+              transitioning ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            <VictoryScreen onEscape={handleVictoryEscape} />
           </div>
         )}
 

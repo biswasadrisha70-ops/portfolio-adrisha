@@ -310,16 +310,99 @@ function useParticleCanvas() {
   return { canvasRef, spawnParticles, spawnTransitionParticles }
 }
 
+// ===================== SCORE BAR COMPONENT =====================
+function ScoreBar({ score }: { score: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      {/* Score Label */}
+      <span
+        className="font-mono text-[10px] uppercase tracking-[0.2em] font-semibold"
+        style={{
+          color: "rgba(0,207,255,0.9)",
+          textShadow: "0 0 6px rgba(0,200,255,0.5)",
+        }}
+      >
+        Score
+      </span>
+
+      {/* Progress Bar Container */}
+      <div
+        className="relative h-3 w-32 sm:w-40 overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, rgba(0,20,40,0.8) 0%, rgba(0,10,20,0.9) 100%)",
+          border: "1px solid rgba(0,207,255,0.6)",
+          boxShadow:
+            "0 0 8px rgba(0,207,255,0.4), inset 0 0 4px rgba(0,207,255,0.2)",
+          clipPath:
+            "polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)",
+        }}
+      >
+        {/* Progress Fill */}
+        <div
+          className="absolute inset-y-0 left-0 transition-all duration-500 ease-out"
+          style={{
+            width: `${score}%`,
+            background:
+              "linear-gradient(90deg, rgba(0,180,255,0.9) 0%, rgba(0,220,255,1) 50%, rgba(100,240,255,1) 100%)",
+            boxShadow:
+              "0 0 10px rgba(0,207,255,0.8), 0 0 20px rgba(0,207,255,0.4)",
+          }}
+        />
+
+        {/* Animated glow effect on fill */}
+        <div
+          className="absolute inset-y-0 left-0 transition-all duration-500 ease-out"
+          style={{
+            width: `${score}%`,
+            background:
+              "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)",
+            animation: "score-shimmer 2s ease-in-out infinite",
+          }}
+        />
+
+        {/* Segment markers */}
+        {[20, 40, 60, 80].map((marker) => (
+          <div
+            key={marker}
+            className="absolute top-0 bottom-0 w-px"
+            style={{
+              left: `${marker}%`,
+              background: "rgba(0,207,255,0.3)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Percentage Display */}
+      <span
+        className="font-mono text-[10px] font-bold tabular-nums"
+        style={{
+          color: "rgba(0,207,255,1)",
+          textShadow: "0 0 6px rgba(0,200,255,0.6)",
+          minWidth: "32px",
+        }}
+      >
+        {score}%
+      </span>
+    </div>
+  )
+}
+
 // ===================== MAIN COMPONENT =====================
 interface BattleScreenProps {
   onBack?: () => void
   onNavigate?: (page: string) => void
+  onVictory?: () => void
 }
 
-export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
+export function BattleScreen({ onBack, onNavigate, onVictory }: BattleScreenProps) {
   const [mounted, setMounted] = useState(false)
   const [gunVisible, setGunVisible] = useState(false)
   const { enabled: soundEnabled } = useSound()
+
+  // Score state
+  const [score, setScore] = useState(0)
+  const [hitAvatars, setHitAvatars] = useState<Set<number>>(new Set())
 
   // Laser state
   const [laserActive, setLaserActive] = useState(false)
@@ -384,6 +467,25 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
       laserAudioRef.current.play().catch(() => { })
     }
 
+    // Track score - only increase if avatar hasn't been hit before
+    const isFirstHit = !hitAvatars.has(index)
+    if (isFirstHit) {
+      setHitAvatars((prev) => new Set(prev).add(index))
+      setScore((prev) => {
+        const newScore = Math.min(prev + 20, 100)
+        // Check for victory condition
+        if (newScore >= 100) {
+          // Delay victory screen to allow final animation to complete
+          setTimeout(() => {
+            if (onVictory) {
+              onVictory()
+            }
+          }, 1800)
+        }
+        return newScore
+      })
+    }
+
     // 1. Muzzle flash + gun recoil + screen shake
     setMuzzleFlash(true)
     setGunRecoil(true)
@@ -427,7 +529,7 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
         }, 700)
       }, 250)
     }, 180)
-  }, [interactionLocked, soundEnabled, spawnParticles, spawnTransitionParticles, onNavigate])
+  }, [interactionLocked, soundEnabled, spawnParticles, spawnTransitionParticles, onNavigate, hitAvatars, onVictory])
 
   return (
     <div
@@ -501,6 +603,10 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           50% { transform: translate(-50%, -100%) scale(1.2); opacity: 0.9; }
           100% { transform: translate(-50%, -100%) scale(1.5); opacity: 0; }
         }
+        @keyframes score-shimmer {
+          0%, 100% { opacity: 0.3; transform: translateX(-100%); }
+          50% { opacity: 0.6; transform: translateX(100%); }
+        }
       `}</style>
 
       {/* ============= BATTLEFIELD BACKGROUND ============= */}
@@ -528,25 +634,34 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
         }}
       />
 
-      {/* ============= BACK BUTTON (Top-left, glowing) ============= */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className={`group fixed left-5 top-5 z-[20] flex cursor-pointer items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-            }`}
-          style={{
-            color: "rgba(0,207,255,0.7)",
-            textShadow: "0 0 8px rgba(0,200,255,0.4)",
-          }}
-          aria-label="Back to mode select"
-        >
-          <ArrowLeft
-            className="transition-transform duration-300 group-hover:-translate-x-1"
-            style={{ width: 16, height: 16, filter: "drop-shadow(0 0 4px rgba(0,200,255,0.5))" }}
-          />
-          <span className="group-hover:text-[rgba(0,207,255,1)] transition-colors duration-300">Back</span>
-        </button>
-      )}
+      {/* ============= TOP-LEFT HUD: BACK BUTTON + SCORE BAR ============= */}
+      <div
+        className={`fixed left-5 top-5 z-[20] flex items-center gap-4 sm:left-8 sm:top-7 transition-all duration-500 ${
+          mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+        }`}
+      >
+        {/* Back Button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="group flex cursor-pointer items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em]"
+            style={{
+              color: "rgba(0,207,255,0.7)",
+              textShadow: "0 0 8px rgba(0,200,255,0.4)",
+            }}
+            aria-label="Back to mode select"
+          >
+            <ArrowLeft
+              className="transition-transform duration-300 group-hover:-translate-x-1"
+              style={{ width: 16, height: 16, filter: "drop-shadow(0 0 4px rgba(0,200,255,0.5))" }}
+            />
+            <span className="group-hover:text-[rgba(0,207,255,1)] transition-colors duration-300">Back</span>
+          </button>
+        )}
+
+        {/* Score Bar */}
+        <ScoreBar score={score} />
+      </div>
 
       {/* ============= TOP-RIGHT HUD: SOUND + HELP ============= */}
       <div
