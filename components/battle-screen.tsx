@@ -8,11 +8,11 @@ import { useSound } from "@/hooks/use-sound"
 
 // ===================== AVATAR TARGET DATA =====================
 const AVATAR_TARGETS = [
-  { id: 1, src: "/images/avatar1.png", left: "10%", bottom: "8%", scale: 2.4, height: "clamp(180px, 28vh, 320px)", z: 4 },
-  { id: 2, src: "/images/avatar2.png", left: "28%", bottom: "5%", scale: 2.8, height: "clamp(200px, 32vh, 360px)", z: 5 },
-  { id: 3, src: "/images/avatar3.png", left: "50%", bottom: "10%", scale: 3.0, height: "clamp(220px, 35vh, 400px)", z: 6 },
+  { id: 1, src: "/images/avatar1.png", left: "10%", bottom: "8%", scale: 2.4, height: "clamp(180px, 28vh, 320px)", z: 5 },
+  { id: 2, src: "/images/avatar2.png", left: "28%", bottom: "5%", scale: 2.8, height: "clamp(200px, 32vh, 360px)", z: 4 },
+  { id: 3, src: "/images/avatar3.png", left: "50%", bottom: "10%", scale: 3.0, height: "clamp(220px, 35vh, 400px)", z: 3 },
   { id: 4, src: "/images/avatar4.png", left: "72%", bottom: "12%", scale: 2.5, height: "clamp(190px, 30vh, 340px)", z: 4 },
-  { id: 5, src: "/images/avatar5.png", left: "90%", bottom: "8%", scale: 2.4, height: "clamp(190px, 30vh, 340px)", z: 4 },
+  { id: 5, src: "/images/avatar5.png", left: "90%", bottom: "8%", scale: 2.4, height: "clamp(190px, 30vh, 340px)", z: 5 },
 ]
 
 // ===================== AVATAR-ANCHORED HUD LABELS =====================
@@ -552,11 +552,12 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
       </div>
 
       {/* ============= AVATAR TARGETS WITH AURA & ANCHORED LABELS ============= */}
+      {/* Pointer-events disabled on outer layer; only the image itself is clickable */}
       {AVATAR_TARGETS.map((avatar, index) => (
         <div
           ref={(el) => { avatarRefs.current[index] = el }}
           key={avatar.id}
-          className={`absolute inline-block ${interactionLocked ? "pointer-events-none" : "cursor-crosshair"}`}
+          className="pointer-events-none absolute inline-block"
           style={{
             left: avatar.left,
             bottom: avatar.bottom,
@@ -569,7 +570,6 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
               ? { animation: "dissolve-out 0.8s ease-out forwards" }
               : {}),
           }}
-          onClick={() => handleAvatarClick(index)}
         >
           {/* HUD label anchored above head */}
           <div
@@ -587,13 +587,17 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           {/* Red Aura Engine */}
           <RedAuraEngine />
           
-          {/* Avatar Image */}
+          {/* Avatar Image — sole click target */}
           <Image
             src={avatar.src}
             alt={`Target ${avatar.id}`}
             width={400}
             height={600}
-            className="relative h-full w-auto object-contain"
+            className={`relative h-full w-auto object-contain ${
+              interactionLocked ? "pointer-events-none" : "pointer-events-auto cursor-crosshair"
+            }`}
+            style={{ position: "relative", zIndex: 2 }}
+            onClick={() => handleAvatarClick(index)}
             unoptimized
           />
         </div>
