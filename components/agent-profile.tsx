@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
+import { SoundToggle } from "@/components/sound-toggle"
+import { HelpButton } from "@/components/help-button"
 
 // ===================== SEEDED RANDOM =====================
 
@@ -196,13 +198,15 @@ function ProfileAuraEngine() {
 interface AgentProfileProps {
   /** Return to the tactical hub */
   onBack: () => void
+  /** Navigate to the previous module (Contact Channels) */
+  onPrev?: () => void
   /** Navigate to the next module (Core Abilities) */
   onNext?: () => void
   /** Source mode: "tactical" shows bottom nav, "battle" hides it */
   source?: "tactical" | "battle"
 }
 
-export function AgentProfile({ onBack, onNext, source = "tactical" }: AgentProfileProps) {
+export function AgentProfile({ onBack, onPrev, onNext, source = "tactical" }: AgentProfileProps) {
   const [mounted, setMounted] = useState(false)
   const { playClick } = useSound()
 
@@ -215,6 +219,11 @@ export function AgentProfile({ onBack, onNext, source = "tactical" }: AgentProfi
     playClick()
     onBack()
   }, [playClick, onBack])
+
+  const handlePrev = useCallback(() => {
+    playClick()
+    onPrev?.()
+  }, [playClick, onPrev])
 
   const handleNext = useCallback(() => {
     playClick()
@@ -369,14 +378,28 @@ export function AgentProfile({ onBack, onNext, source = "tactical" }: AgentProfi
       {/* ====== BACK BUTTON (Top-left) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-7 ${
+        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
+        style={{
+          color: "rgba(220,60,60,0.7)",
+          textShadow: "0 0 8px rgba(200,40,40,0.45)",
+        }}
         aria-label="Back to tactical hub"
       >
-        <span className="inline-block h-px w-4 bg-current transition-all duration-300 group-hover:w-6" />
-        <span>Back</span>
+        <span className="inline-block h-px w-4 bg-current transition-all duration-300 group-hover:w-6" style={{ filter: "drop-shadow(0 0 4px rgba(200,40,40,0.5))" }} />
+        <span className="transition-colors duration-300 group-hover:text-[rgba(220,60,60,1)]">Back</span>
       </button>
+
+      {/* ====== TOP-RIGHT: Sound + Help ====== */}
+      <div
+        className={`fixed right-5 top-6 z-[100] flex items-center gap-3 sm:right-8 sm:top-7 transition-all duration-700 ${
+          mounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
+        }`}
+      >
+        <SoundToggle position="inline" />
+        <HelpButton />
+      </div>
 
       {/* ====== BOTTOM NAV ARROWS (hidden in Battle Mode) ====== */}
       {source !== "battle" && <div
@@ -384,14 +407,14 @@ export function AgentProfile({ onBack, onNext, source = "tactical" }: AgentProfi
           mounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
         }`}
       >
-        {/* Left arrow -- back to Tactical Hub */}
+        {/* Left arrow -- to Contact Channels */}
         <button
-          onClick={handleBack}
+          onClick={handlePrev}
           className="group flex cursor-pointer items-center justify-center border border-danger/20 bg-[#0a0a0f]/70 p-3 backdrop-blur-sm transition-all duration-400 hover:border-danger/40 hover:bg-danger/[0.06]"
           style={{
             clipPath: "polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)",
           }}
-          aria-label="Back to Tactical Hub"
+          aria-label="Navigate to Contact Channels"
         >
           <ChevronLeft className="h-5 w-5 text-danger/40 transition-all duration-300 group-hover:text-danger/70 group-hover:-translate-x-0.5" />
         </button>

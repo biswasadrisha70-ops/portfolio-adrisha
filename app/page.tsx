@@ -15,6 +15,7 @@ import { StatusBar } from "@/components/status-bar"
 import { Scanlines } from "@/components/scanlines"
 import { GridBackground } from "@/components/grid-background"
 import { SoundToggle } from "@/components/sound-toggle"
+import { HelpButton } from "@/components/help-button"
 import { SoundProvider } from "@/hooks/use-sound"
 
 export default function Home() {
@@ -100,6 +101,14 @@ export default function Home() {
     setTransitioning(true)
     setTimeout(() => {
       setScreen("tactical")
+      setTransitioning(false)
+    }, 600)
+  }, [])
+
+  const handleProfilePrev = useCallback(() => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setScreen("contact")
       setTransitioning(false)
     }, 600)
   }, [])
@@ -241,8 +250,13 @@ export default function Home() {
         <GridBackground />
         <Scanlines />
 
-        {/* Sound toggle (hidden in tactical view since it has its own) */}
-        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && screen !== "contact" && screen !== "battle" && <SoundToggle />}
+        {/* Sound toggle + Help (hidden on screens that have their own) */}
+        {screen !== "tactical" && screen !== "profile" && screen !== "abilities" && screen !== "missions" && screen !== "alliances" && screen !== "contact" && screen !== "battle" && (
+          <div className="fixed right-6 top-6 z-50 flex items-center gap-3 sm:right-10 sm:top-10">
+            <SoundToggle position="inline" />
+            <HelpButton />
+          </div>
+        )}
 
         {/* Radial vignette */}
         <div
@@ -303,6 +317,7 @@ export default function Home() {
           >
             <AgentProfile
               onBack={pageSource === "battle" ? handleBackToBattle : handleProfileBack}
+              onPrev={handleProfilePrev}
               onNext={handleProfileNext}
               source={pageSource}
             />

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { User, Crosshair, FileText, Users, Radio } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
 import { SoundToggle } from "@/components/sound-toggle"
+import { HelpButton } from "@/components/help-button"
 import { TacticalHudFrame } from "@/components/tactical-hud-frame"
 
 // ===================== DATA =====================
@@ -363,11 +364,12 @@ export function TacticalView({ selectedRole, onBack, onModuleOpen }: TacticalVie
 
       {/* ========== SOUND TOGGLE (Top-Left) ========== */}
       <div
-        className={`fixed left-5 top-5 z-[95] transition-all duration-700 delay-200 sm:left-8 sm:top-7 ${
+        className={`fixed left-5 top-5 z-[95] flex items-center gap-3 transition-all duration-700 delay-200 sm:left-8 sm:top-7 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
       >
-        <SoundToggle position="top-left" />
+        <SoundToggle position="inline" />
+        <HelpButton />
       </div>
 
       {/* ========== BACK BUTTON (Below Sound Toggle) ========== */}

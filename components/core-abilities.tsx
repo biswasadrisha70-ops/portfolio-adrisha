@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useSound } from "@/hooks/use-sound"
+import { SoundToggle } from "@/components/sound-toggle"
+import { HelpButton } from "@/components/help-button"
 
 // ===================== SEEDED RANDOM =====================
 
@@ -412,17 +414,31 @@ export function CoreAbilities({ onPrev, onNext, onBack, source = "tactical" }: C
         </div>
       </div>
 
-      {/* ====== BACK BUTTON (Top-left) ====== */}
+      {/* ====== BACK BUTTON (Top-left, red glow) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/40 transition-all duration-500 hover:text-danger/70 sm:left-8 sm:top-7 ${
+        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
+        style={{
+          color: "rgba(220,60,60,0.7)",
+          textShadow: "0 0 8px rgba(200,40,40,0.45)",
+        }}
         aria-label="Back to tactical hub"
       >
-        <span className="inline-block h-px w-4 bg-current transition-all duration-300 group-hover:w-6" />
-        <span>Back</span>
+        <span className="inline-block h-px w-4 bg-current transition-all duration-300 group-hover:w-6" style={{ filter: "drop-shadow(0 0 4px rgba(200,40,40,0.5))" }} />
+        <span className="transition-colors duration-300 group-hover:text-[rgba(220,60,60,1)]">Back</span>
       </button>
+
+      {/* ====== TOP-RIGHT: Sound + Help ====== */}
+      <div
+        className={`fixed right-5 top-6 z-[100] flex items-center gap-3 sm:right-8 sm:top-7 transition-all duration-700 ${
+          mounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
+        }`}
+      >
+        <SoundToggle position="inline" />
+        <HelpButton />
+      </div>
 
       {/* ====== BOTTOM NAV ARROWS (hidden in Battle Mode) ====== */}
       {source !== "battle" && (
