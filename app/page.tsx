@@ -214,6 +214,14 @@ export default function Home() {
     }, 600)
   }, [])
 
+  const handleBattleNavigate = useCallback((page: string) => {
+    const validScreens = ["profile", "abilities", "missions", "alliances", "contact"] as const
+    type ValidScreen = typeof validScreens[number]
+    if (validScreens.includes(page as ValidScreen)) {
+      setScreen(page as typeof screen)
+    }
+  }, [])
+
   return (
     <SoundProvider>
       <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-background px-4 py-20 sm:px-6">
@@ -355,7 +363,7 @@ export default function Home() {
               transitioning ? "opacity-0" : "opacity-100"
             }`}
           >
-            <BattleScreen onBack={handleBattleBack} />
+            <BattleScreen onBack={handleBattleBack} onNavigate={handleBattleNavigate} />
           </div>
         )}
 

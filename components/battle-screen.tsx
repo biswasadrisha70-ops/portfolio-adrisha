@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import Image from "next/image"
 import { SoundToggle } from "@/components/sound-toggle"
 import { ArrowLeft } from "lucide-react"
+import { useSound } from "@/hooks/use-sound"
 
 // ===================== AVATAR TARGET DATA =====================
 const AVATAR_TARGETS = [
@@ -16,11 +17,11 @@ const AVATAR_TARGETS = [
 
 // ===================== AVATAR-ANCHORED HUD LABELS =====================
 const AVATAR_LABELS = [
-  { id: 1, label: "ALLIANCES" },
-  { id: 2, label: "MISSIONS" },
-  { id: 3, label: "PROFILE" },
-  { id: 4, label: "STRENGTHS" },
-  { id: 5, label: "CONTACT" },
+  { id: 1, label: "ALLIANCES", page: "alliances" },
+  { id: 2, label: "MISSIONS", page: "missions" },
+  { id: 3, label: "PROFILE", page: "profile" },
+  { id: 4, label: "STRENGTHS", page: "abilities" },
+  { id: 5, label: "CONTACT", page: "contact" },
 ]
 
 // ===================== TONED DOWN RED AURA ENGINE (15% reduced) =====================
@@ -37,7 +38,6 @@ function RedAuraEngine() {
 
   return (
     <div className="pointer-events-none absolute inset-0">
-      {/* Outer glow - reduced 15% */}
       <div 
         className="absolute inset-0"
         style={{
@@ -46,7 +46,6 @@ function RedAuraEngine() {
           animation: "aura-flicker 3s ease-in-out infinite",
         }}
       />
-      {/* Inner rim light - reduced 15% */}
       <div 
         className="absolute inset-0"
         style={{
@@ -54,7 +53,6 @@ function RedAuraEngine() {
           filter: "blur(12px)",
         }}
       />
-      {/* Silhouette edge highlight - reduced 15% */}
       <div 
         className="absolute inset-0"
         style={{
@@ -63,7 +61,6 @@ function RedAuraEngine() {
           animation: "edge-pulse 2.5s ease-in-out infinite",
         }}
       />
-      {/* Ember particles - reduced density by 10% (14 instead of 16) */}
       {sparks.map((spark) => (
         <div
           key={spark.id}
@@ -80,7 +77,6 @@ function RedAuraEngine() {
           }}
         />
       ))}
-      {/* Ground glow - reduced 15% */}
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2"
         style={{
@@ -111,7 +107,6 @@ function HudLabelBox({ label }: { label: string }) {
 
   return (
     <div className="relative inline-block" style={{ maxWidth: "85vw" }}>
-      {/* Blue energy sparks */}
       {sparks.map((spark) => (
         <div
           key={spark.id}
@@ -129,7 +124,6 @@ function HudLabelBox({ label }: { label: string }) {
           }}
         />
       ))}
-      {/* Angular HUD frame */}
       <div
         className="relative"
         style={{
@@ -145,31 +139,13 @@ function HudLabelBox({ label }: { label: string }) {
             "0 0 6px rgba(0,200,255,0.6), 0 0 14px rgba(0,200,255,0.4), inset 0 0 6px rgba(0,200,255,0.35)",
         }}
       >
-        {/* Top-left corner accent */}
         <div
           className="absolute rounded-full"
-          style={{
-            top: 2,
-            left: 6,
-            width: 4,
-            height: 4,
-            background: "#00CFFF",
-            opacity: 0.7,
-            boxShadow: "0 0 4px rgba(0,207,255,0.8)",
-          }}
+          style={{ top: 2, left: 6, width: 4, height: 4, background: "#00CFFF", opacity: 0.7, boxShadow: "0 0 4px rgba(0,207,255,0.8)" }}
         />
-        {/* Bottom-right corner accent */}
         <div
           className="absolute rounded-full"
-          style={{
-            bottom: 2,
-            right: 6,
-            width: 4,
-            height: 4,
-            background: "#00CFFF",
-            opacity: 0.7,
-            boxShadow: "0 0 4px rgba(0,207,255,0.8)",
-          }}
+          style={{ bottom: 2, right: 6, width: 4, height: 4, background: "#00CFFF", opacity: 0.7, boxShadow: "0 0 4px rgba(0,207,255,0.8)" }}
         />
         <span
           className="uppercase"
@@ -191,26 +167,187 @@ function HudLabelBox({ label }: { label: string }) {
 }
 
 // ===================== LABEL COLLISION OFFSETS =====================
-// Vertical offsets (px) stagger nearby labels to maintain 30px clearance.
 const LABEL_VERTICAL_OFFSETS = [5, 10, 0, 8, 5]
 
-// Edge-clamping transforms: avatars 1 & 5 shift inward to stay on-screen.
 const LABEL_EDGE_TRANSFORMS = [
-  "translateX(-55%)",   // avatar 1 at 10% — slightly inward
-  "translateX(-50%)",   // avatar 2 at 28% — centered
-  "translateX(-50%)",   // avatar 3 at 50% — centered
-  "translateX(-50%)",   // avatar 4 at 72% — centered
-  "translateX(-45%)",   // avatar 5 at 90% — slightly inward
+  "translateX(-55%)",
+  "translateX(-50%)",
+  "translateX(-50%)",
+  "translateX(-50%)",
+  "translateX(-45%)",
 ]
+
+// ===================== PARTICLE SYSTEM (Canvas-based) =====================
+interface Particle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  maxLife: number
+  size: number
+  r: number
+  g: number
+  b: number
+}
+
+function useParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const particlesRef = useRef<Particle[]>([])
+  const rafRef = useRef<number>(0)
+  const activeRef = useRef(false)
+
+  const spawnParticles = useCallback((x: number, y: number, count: number) => {
+    const newParticles: Particle[] = []
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const speed = 1 + Math.random() * 4
+      const isRed = Math.random() > 0.3
+      newParticles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.random() * 2,
+        life: 1,
+        maxLife: 0.6 + Math.random() * 0.4,
+        size: 2 + Math.random() * 4,
+        r: isRed ? 200 + Math.random() * 55 : 255,
+        g: isRed ? 50 + Math.random() * 80 : 140 + Math.random() * 60,
+        b: isRed ? 20 + Math.random() * 30 : 50 + Math.random() * 30,
+      })
+    }
+    particlesRef.current.push(...newParticles)
+    if (!activeRef.current) {
+      activeRef.current = true
+      animate()
+    }
+  }, [])
+
+  const spawnTransitionParticles = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const w = canvas.width
+    const h = canvas.height
+    const newParticles: Particle[] = []
+    for (let i = 0; i < 60; i++) {
+      newParticles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 3,
+        vy: -0.5 - Math.random() * 2,
+        life: 1,
+        maxLife: 0.8 + Math.random() * 0.5,
+        size: 2 + Math.random() * 3,
+        r: 200 + Math.random() * 55,
+        g: 40 + Math.random() * 60,
+        b: 20 + Math.random() * 30,
+      })
+    }
+    particlesRef.current.push(...newParticles)
+    if (!activeRef.current) {
+      activeRef.current = true
+      animate()
+    }
+  }, [])
+
+  const animate = useCallback(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    const particles = particlesRef.current
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i]
+      p.x += p.vx
+      p.y += p.vy
+      p.vy += 0.08
+      p.vx *= 0.98
+      p.life -= 1 / (60 * p.maxLife)
+
+      if (p.life <= 0) {
+        particles.splice(i, 1)
+        continue
+      }
+
+      const alpha = p.life * 0.9
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`
+      ctx.fill()
+
+      // glow
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.size * p.life * 2, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha * 0.3})`
+      ctx.fill()
+    }
+
+    if (particles.length > 0) {
+      rafRef.current = requestAnimationFrame(animate)
+    } else {
+      activeRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener("resize", resize)
+    return () => {
+      window.removeEventListener("resize", resize)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  return { canvasRef, spawnParticles, spawnTransitionParticles }
+}
 
 // ===================== MAIN COMPONENT =====================
 interface BattleScreenProps {
   onBack?: () => void
+  onNavigate?: (page: string) => void
 }
 
-export function BattleScreen({ onBack }: BattleScreenProps) {
+export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
   const [mounted, setMounted] = useState(false)
   const [gunVisible, setGunVisible] = useState(false)
+  const { enabled: soundEnabled } = useSound()
+
+  // Laser state
+  const [laserActive, setLaserActive] = useState(false)
+  const [laserStart, setLaserStart] = useState({ x: 0, y: 0 })
+  const [laserEnd, setLaserEnd] = useState({ x: 0, y: 0 })
+
+  // Hit state
+  const [hitPoint, setHitPoint] = useState<{ x: number; y: number } | null>(null)
+  const [dissolveIndex, setDissolveIndex] = useState<number | null>(null)
+  const [screenShake, setScreenShake] = useState(false)
+  const [muzzleFlash, setMuzzleFlash] = useState(false)
+  const [gunRecoil, setGunRecoil] = useState(false)
+  const [fadeOut, setFadeOut] = useState(false)
+  const [interactionLocked, setInteractionLocked] = useState(false)
+
+  // Refs
+  const avatarRefs = useRef<(HTMLDivElement | null)[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+  const laserAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  const { canvasRef, spawnParticles, spawnTransitionParticles } = useParticleCanvas()
+
+  // Preload laser sound
+  useEffect(() => {
+    const audio = new Audio("/audio/ui-click.mp3")
+    audio.volume = 0.7
+    audio.preload = "auto"
+    laserAudioRef.current = audio
+  }, [])
 
   useEffect(() => {
     const bgTimer = setTimeout(() => setMounted(true), 50)
@@ -221,8 +358,82 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
     }
   }, [])
 
+  const handleAvatarClick = useCallback((index: number) => {
+    if (interactionLocked) return
+    setInteractionLocked(true)
+
+    const avatarEl = avatarRefs.current[index]
+    const container = containerRef.current
+    if (!avatarEl || !container) return
+
+    const avatarRect = avatarEl.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+
+    // Gun position (bottom center of screen)
+    const gunX = containerRect.width / 2
+    const gunY = containerRect.height - 60
+
+    // Target center (avatar center-mass)
+    const targetX = avatarRect.left - containerRect.left + avatarRect.width / 2
+    const targetY = avatarRect.top - containerRect.top + avatarRect.height * 0.4
+
+    // Play laser sound
+    if (soundEnabled && laserAudioRef.current) {
+      laserAudioRef.current.currentTime = 0
+      laserAudioRef.current.play().catch(() => {})
+    }
+
+    // 1. Muzzle flash + gun recoil + screen shake
+    setMuzzleFlash(true)
+    setGunRecoil(true)
+    setScreenShake(true)
+    setTimeout(() => setScreenShake(false), 120)
+    setTimeout(() => setMuzzleFlash(false), 150)
+    setTimeout(() => setGunRecoil(false), 180)
+
+    // 2. Fire laser beam
+    setLaserStart({ x: gunX, y: gunY })
+    setLaserEnd({ x: targetX, y: targetY })
+    setLaserActive(true)
+
+    // 3. Hit impact after laser travel (180ms)
+    setTimeout(() => {
+      setLaserActive(false)
+      setHitPoint({ x: targetX, y: targetY })
+
+      // Spawn impact particles
+      spawnParticles(targetX, targetY, 30)
+
+      // 4. Start dissolve after impact (250ms)
+      setTimeout(() => {
+        setHitPoint(null)
+        setDissolveIndex(index)
+
+        // Spawn dissolve particles from avatar center
+        spawnParticles(targetX, targetY, 60)
+
+        // 5. Fade transition after dissolve (700ms)
+        setTimeout(() => {
+          setFadeOut(true)
+          spawnTransitionParticles()
+
+          // 6. Navigate after fade (400ms)
+          setTimeout(() => {
+            if (onNavigate) {
+              onNavigate(AVATAR_LABELS[index].page)
+            }
+          }, 400)
+        }, 700)
+      }, 250)
+    }, 180)
+  }, [interactionLocked, soundEnabled, spawnParticles, spawnTransitionParticles, onNavigate])
+
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: "#0a0a0f" }}>
+    <div
+      ref={containerRef}
+      className={`fixed inset-0 overflow-hidden ${screenShake ? "animate-shake" : ""}`}
+      style={{ backgroundColor: "#0a0a0f" }}
+    >
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes ember-rise {
@@ -250,7 +461,45 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
           50% { opacity: 0.4; }
           100% { transform: translateY(-28px) scale(0.3); opacity: 0; }
         }
-
+        @keyframes shake {
+          0%, 100% { transform: translate(0, 0); }
+          10% { transform: translate(-2px, 1px); }
+          20% { transform: translate(3px, -1px); }
+          30% { transform: translate(-1px, 2px); }
+          40% { transform: translate(2px, -2px); }
+          50% { transform: translate(-3px, 1px); }
+          60% { transform: translate(1px, -1px); }
+          70% { transform: translate(-2px, 2px); }
+          80% { transform: translate(3px, 1px); }
+          90% { transform: translate(-1px, -2px); }
+        }
+        .animate-shake {
+          animation: shake 0.12s ease-in-out;
+        }
+        @keyframes laser-fire {
+          0% { stroke-dashoffset: 100%; opacity: 0.3; }
+          30% { opacity: 1; }
+          100% { stroke-dashoffset: 0%; opacity: 1; }
+        }
+        @keyframes hit-flash {
+          0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+          50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
+          100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+        @keyframes hit-ring {
+          0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; border-width: 3px; }
+          100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 1px; }
+        }
+        @keyframes dissolve-out {
+          0% { filter: brightness(2) saturate(1.5); opacity: 1; transform: translateX(-50%) scale(var(--avatar-scale)); }
+          30% { filter: brightness(3) saturate(0.5); opacity: 0.7; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 1.02)); }
+          100% { filter: brightness(0.5) saturate(0) blur(8px); opacity: 0; transform: translateX(-50%) scale(calc(var(--avatar-scale) * 0.95)); }
+        }
+        @keyframes muzzle-flash {
+          0% { transform: translate(-50%, -100%) scale(0.5); opacity: 1; }
+          50% { transform: translate(-50%, -100%) scale(1.2); opacity: 0.9; }
+          100% { transform: translate(-50%, -100%) scale(1.5); opacity: 0; }
+        }
       `}</style>
 
       {/* ============= BATTLEFIELD BACKGROUND ============= */}
@@ -305,8 +554,9 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
       {/* ============= AVATAR TARGETS WITH AURA & ANCHORED LABELS ============= */}
       {AVATAR_TARGETS.map((avatar, index) => (
         <div
+          ref={(el) => { avatarRefs.current[index] = el }}
           key={avatar.id}
-          className="pointer-events-none absolute inline-block"
+          className={`absolute inline-block ${interactionLocked ? "pointer-events-none" : "cursor-crosshair"}`}
           style={{
             left: avatar.left,
             bottom: avatar.bottom,
@@ -314,11 +564,16 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
             height: avatar.height,
             width: "auto",
             zIndex: avatar.z,
+            ["--avatar-scale" as string]: avatar.scale,
+            ...(dissolveIndex === index
+              ? { animation: "dissolve-out 0.8s ease-out forwards" }
+              : {}),
           }}
+          onClick={() => handleAvatarClick(index)}
         >
           {/* HUD label anchored above head */}
           <div
-            className="absolute whitespace-nowrap text-center"
+            className="pointer-events-none absolute whitespace-nowrap text-center"
             style={{
               bottom: "100%",
               left: "50%",
@@ -344,6 +599,116 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
         </div>
       ))}
 
+      {/* ============= LASER BEAM SVG ============= */}
+      {laserActive && (
+        <svg
+          className="pointer-events-none fixed inset-0 z-[15]"
+          width="100%"
+          height="100%"
+          style={{ filter: "drop-shadow(0 0 6px rgba(0,207,255,0.8))" }}
+        >
+          {/* Outer glow */}
+          <line
+            x1={laserStart.x}
+            y1={laserStart.y}
+            x2={laserEnd.x}
+            y2={laserEnd.y}
+            stroke="rgba(0,207,255,0.3)"
+            strokeWidth="8"
+            strokeLinecap="round"
+            style={{ animation: "laser-fire 0.18s ease-out forwards" }}
+          />
+          {/* Core beam */}
+          <line
+            x1={laserStart.x}
+            y1={laserStart.y}
+            x2={laserEnd.x}
+            y2={laserEnd.y}
+            stroke="rgba(100,220,255,1)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            style={{ animation: "laser-fire 0.18s ease-out forwards" }}
+          />
+          {/* Bright center */}
+          <line
+            x1={laserStart.x}
+            y1={laserStart.y}
+            x2={laserEnd.x}
+            y2={laserEnd.y}
+            stroke="rgba(255,255,255,0.9)"
+            strokeWidth="1"
+            strokeLinecap="round"
+            style={{ animation: "laser-fire 0.18s ease-out forwards" }}
+          />
+        </svg>
+      )}
+
+      {/* ============= HIT IMPACT EFFECT ============= */}
+      {hitPoint && (
+        <div className="pointer-events-none fixed inset-0 z-[16]">
+          {/* Flash */}
+          <div
+            className="absolute"
+            style={{
+              left: hitPoint.x,
+              top: hitPoint.y,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(100,220,255,1) 0%, rgba(0,207,255,0.6) 40%, transparent 70%)",
+              animation: "hit-flash 0.25s ease-out forwards",
+            }}
+          />
+          {/* Shockwave ring */}
+          <div
+            className="absolute"
+            style={{
+              left: hitPoint.x,
+              top: hitPoint.y,
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              border: "2px solid rgba(0,207,255,0.7)",
+              boxShadow: "0 0 12px rgba(0,207,255,0.5)",
+              animation: "hit-ring 0.3s ease-out forwards",
+            }}
+          />
+        </div>
+      )}
+
+      {/* ============= MUZZLE FLASH ============= */}
+      {muzzleFlash && (
+        <div
+          className="pointer-events-none fixed z-[12]"
+          style={{
+            left: "50%",
+            bottom: 55,
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(100,220,255,1) 0%, rgba(0,207,255,0.5) 50%, transparent 70%)",
+            animation: "muzzle-flash 0.15s ease-out forwards",
+          }}
+        />
+      )}
+
+      {/* ============= PARTICLE CANVAS ============= */}
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none fixed inset-0 z-[17]"
+        style={{ width: "100%", height: "100%" }}
+      />
+
+      {/* ============= FADE-OUT OVERLAY ============= */}
+      <div
+        className="pointer-events-none fixed inset-0 z-[18] transition-opacity ease-in"
+        style={{
+          backgroundColor: "rgba(5,5,10,1)",
+          opacity: fadeOut ? 1 : 0,
+          transitionDuration: "400ms",
+        }}
+      />
+
       {/* ============= GUN OVERLAY WITH ENERGY CROSS ============= */}
       <div
         className={`pointer-events-none fixed bottom-0 left-1/2 z-[10] -translate-x-1/2 transition-opacity duration-500 ease-out ${
@@ -352,6 +717,8 @@ export function BattleScreen({ onBack }: BattleScreenProps) {
         style={{
           width: "clamp(300px, 40vw, 600px)",
           height: "auto",
+          transform: `translateX(-50%) ${gunRecoil ? "translateY(6px)" : "translateY(0)"}`,
+          transition: "transform 0.12s ease-out",
         }}
       >
         <Image
