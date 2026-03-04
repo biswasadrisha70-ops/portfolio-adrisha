@@ -357,12 +357,27 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
     }
   }, [])
 
-  const handleAvatarClick = useCallback((e: React.MouseEvent<HTMLImageElement>, index: number) => {
+  const handleAvatarClick = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation()
     if (interactionLocked) return
     setInteractionLocked(true)
 
-    // Use click coordinates directly — no getBoundingClientRect, no precomputed positions
+    // Resolve identity from the clicked element — never use array index
+    const clickedImg = e.currentTarget
+    const avatarContainer = clickedImg.closest<HTMLElement>("[data-target]")
+    const targetPage = avatarContainer?.dataset.target ?? ""
+    const avatarIndex = AVATAR_TARGETS.findIndex(
+      (_, i) => AVATAR_LABELS[i].page === targetPage
+    )
+
+    console.log("[v0] Avatar click:", { targetPage, avatarIndex, clientX: e.clientX, clientY: e.clientY })
+
+    if (avatarIndex === -1) {
+      setInteractionLocked(false)
+      return
+    }
+
+    // Use click coordinates directly — no getBoundingClientRect
     const targetX = e.clientX
     const targetY = e.clientY
 
@@ -397,12 +412,14 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
       // Spawn impact particles
       spawnParticles(targetX, targetY, 30)
 
-      // 4. Start dissolve after impact (250ms)
+      // 4. Start dissolve after impact — use avatarIndex derived from data-target
       setTimeout(() => {
         setHitPoint(null)
-        setDissolveIndex(index)
+        setDissolveIndex(avatarIndex)
 
-        // Spawn dissolve particles from avatar center
+        console.log("[v0] Dissolving avatar:", avatarIndex, AVATAR_LABELS[avatarIndex].label)
+
+        // Spawn dissolve particles from click point
         spawnParticles(targetX, targetY, 60)
 
         // 5. Fade transition after dissolve (700ms)
@@ -410,10 +427,11 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
           setFadeOut(true)
           spawnTransitionParticles()
 
-          // 6. Navigate after fade (400ms)
+          // 6. Navigate after fade — use targetPage from data-target
           setTimeout(() => {
+            console.log("[v0] Navigating to:", targetPage)
             if (onNavigate) {
-              onNavigate(AVATAR_LABELS[index].page)
+              onNavigate(targetPage)
             }
           }, 400)
         }, 700)
@@ -592,7 +610,7 @@ export function BattleScreen({ onBack, onNavigate }: BattleScreenProps) {
                 ? { animation: "dissolve-out 0.8s ease-out forwards" }
                 : {}),
             }}
-            onClick={(e) => handleAvatarClick(e, index)}
+            onClick={handleAvatarClick}
           />
         </div>
       ))}
