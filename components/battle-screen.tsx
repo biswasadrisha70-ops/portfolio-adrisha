@@ -132,7 +132,7 @@ function HudLabelBox({ label }: { label: string }) {
         className="relative"
         style={{
           display: "inline-block",
-          padding: "3px 10px",
+          padding: "2px 8px",
           border: "1px solid rgba(0,200,255,0.9)",
           background: "linear-gradient(180deg, rgba(10,20,35,0.85), rgba(0,10,20,0.75))",
           backgroundImage:
@@ -173,7 +173,7 @@ function HudLabelBox({ label }: { label: string }) {
           className="uppercase"
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: "12px",
+            fontSize: "11px",
             letterSpacing: "2px",
             fontWeight: 600,
             color: "#00CFFF",
@@ -194,11 +194,11 @@ const LABEL_VERTICAL_OFFSETS = [5, 10, 0, 8, 5]
 
 // Edge-clamping transforms: avatars 1 & 5 shift inward to stay on-screen.
 const LABEL_EDGE_TRANSFORMS = [
-  "translateX(-65%)",   // avatar 1 at 10% — shifted left
+  "translateX(-55%)",   // avatar 1 at 10% — slightly inward
   "translateX(-50%)",   // avatar 2 at 28% — centered
   "translateX(-50%)",   // avatar 3 at 50% — centered
   "translateX(-50%)",   // avatar 4 at 72% — centered
-  "translateX(-35%)",   // avatar 5 at 90% — shifted right
+  "translateX(-45%)",   // avatar 5 at 90% — slightly inward
 ]
 
 // ===================== MAIN COMPONENT =====================
@@ -294,7 +294,7 @@ export function BattleScreen() {
               bottom: "100%",
               left: "50%",
               transform: LABEL_EDGE_TRANSFORMS[index],
-              marginBottom: `${8 + LABEL_VERTICAL_OFFSETS[index]}px`,
+              marginBottom: `${4 + LABEL_VERTICAL_OFFSETS[index]}px`,
             }}
           >
             <HudLabelBox label={AVATAR_LABELS[index].label} />
