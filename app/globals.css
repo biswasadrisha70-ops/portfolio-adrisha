@@ -419,3 +419,85 @@
 .animate-avatar-float {
   animation: avatar-float 5s ease-in-out infinite;
 }
+
+/* === Cinematic Visual Polish === */
+
+/* Subtle hover glow for interactive buttons */
+@keyframes hover-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0,200,255,0.15), inset 0 0 6px rgba(0,200,255,0.08);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0,200,255,0.35), 0 0 30px rgba(0,200,255,0.12), inset 0 0 10px rgba(0,200,255,0.12);
+  }
+}
+
+.hover-glow {
+  transition: box-shadow 0.4s ease, filter 0.4s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 14px rgba(0,200,255,0.3), 0 0 28px rgba(0,200,255,0.1), inset 0 0 8px rgba(0,200,255,0.1);
+  filter: brightness(1.1);
+}
+
+.hover-glow-danger {
+  transition: box-shadow 0.4s ease, filter 0.4s ease;
+}
+
+.hover-glow-danger:hover {
+  box-shadow: 0 0 14px rgba(200,50,35,0.3), 0 0 28px rgba(200,50,35,0.1), inset 0 0 8px rgba(200,50,35,0.1);
+  filter: brightness(1.1);
+}
+
+/* Ambient panel glow animation */
+@keyframes ambient-panel-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.02);
+  }
+}
+
+.animate-ambient-glow {
+  animation: ambient-panel-glow 6s ease-in-out infinite;
+}
+
+.animate-ambient-glow-delayed {
+  animation: ambient-panel-glow 6s ease-in-out 2s infinite;
+}
+
+/* Smooth page entrance animation */
+@keyframes page-fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.985) translateY(6px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Moving scan line overlay */
+@keyframes scan-sweep {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.animate-scan-sweep {
+  animation: scan-sweep 8s linear infinite;
+}

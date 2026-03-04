@@ -142,7 +142,7 @@ export function HelpButton() {
     <>
       <button
         onClick={() => setShowHelp(true)}
-        className="group relative flex cursor-pointer items-center gap-1.5 rounded border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] backdrop-blur-sm transition-all duration-500 border-[rgba(0,200,255,0.4)] bg-[rgba(5,15,25,0.6)] text-[#00CFFF] hover:border-[rgba(0,200,255,0.7)] hover:bg-[rgba(5,15,25,0.8)]"
+        className="hover-glow group relative flex cursor-pointer items-center gap-1.5 rounded border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] backdrop-blur-sm transition-all duration-500 border-[rgba(0,200,255,0.4)] bg-[rgba(5,15,25,0.6)] text-[#00CFFF] hover:border-[rgba(0,200,255,0.7)] hover:bg-[rgba(5,15,25,0.8)]"
         style={{
           boxShadow: "0 0 8px rgba(0,200,255,0.15), inset 0 0 6px rgba(0,200,255,0.08)",
           textShadow: "0 0 4px rgba(0,200,255,0.5)",

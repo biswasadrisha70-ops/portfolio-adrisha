@@ -437,7 +437,7 @@ export function MissionLog({ onPrev, onNext, onBack, source = "tactical" }: Miss
       {/* ====== BACK BUTTON (Top-left, red glow) ====== */}
       <button
         onClick={handleBack}
-        className={`group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${
+        className={`hover-glow-danger group fixed left-5 top-6 z-[100] flex cursor-pointer items-center gap-2 rounded px-2 py-1 font-mono text-[9px] uppercase tracking-[0.25em] transition-all duration-500 sm:left-8 sm:top-7 ${
           mounted ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
         }`}
         style={{

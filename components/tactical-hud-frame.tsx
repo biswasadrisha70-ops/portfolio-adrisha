@@ -68,6 +68,16 @@ export function TacticalHudFrame({
         <div className="absolute bottom-[12px] right-0 h-5 w-px bg-danger/40" />
       </div>
 
+      {/* Ambient glow aura behind panel */}
+      <div
+        aria-hidden="true"
+        className="animate-ambient-glow pointer-events-none absolute -inset-3 -z-10"
+        style={{
+          background: `radial-gradient(ellipse 80% 70% at 50% 50%, rgba(180,50,50,${glowIntensity * 0.12}) 0%, transparent 70%)`,
+          filter: "blur(20px)",
+        }}
+      />
+
       {/* Content */}
       <div className="relative z-10">{children}</div>
     </div>

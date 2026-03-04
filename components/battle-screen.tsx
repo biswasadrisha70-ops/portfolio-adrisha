@@ -327,7 +327,7 @@ function ScoreBar({ score }: { score: number }) {
 
       {/* Progress Bar Container */}
       <div
-        className="relative h-3 w-32 sm:w-40 overflow-hidden"
+        className="hover-glow relative h-3 w-32 sm:w-40 overflow-hidden"
         style={{
           background: "linear-gradient(180deg, rgba(0,20,40,0.8) 0%, rgba(0,10,20,0.9) 100%)",
           border: "1px solid rgba(0,207,255,0.6)",
@@ -649,7 +649,7 @@ export function BattleScreen({
         {onBack && (
           <button
             onClick={onBack}
-            className="group flex cursor-pointer items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em]"
+            className="hover-glow group flex cursor-pointer items-center gap-2 rounded px-2 py-1 font-mono text-[12px] uppercase tracking-[0.25em]"
             style={{
               color: "rgba(0,207,255,0.7)",
               textShadow: "0 0 8px rgba(0,200,255,0.4)",
