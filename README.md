@@ -180,7 +180,7 @@ npx vercel
 |---|---|
 | **Live Portfolio** | [View Live Portfolio](https://v0-portfolio-adrisha.vercel.app/) |
 | **GitHub Repository** | [github.com/biswasadrisha70-ops/portfolio-adrisha](https://github.com/biswasadrisha70-ops/portfolio-adrisha) |
-| **LinkedIn** | [linkedin.com/in/adrisha-biswas](#) |
+| **LinkedIn** | [linkedin.com/in/adrisha-biswas](https://www.linkedin.com/in/adrisha-biswas/) |
 
 ---
 
