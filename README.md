@@ -42,7 +42,6 @@ The experience is wrapped in a cinematic sci-fi aesthetic featuring animated sca
 | **Hover Glow Effects** | Interactive buttons emit a soft glow on hover for tactile feedback |
 | **Ambient Panel Glow** | Breathing glow animations behind HUD panels and the status bar |
 | **Smooth Page Transitions** | Fade-in entrance animations with scale and blur effects on every screen change |
-| **Responsive Design** | Adapts to desktop, tablet, and mobile viewports |
 
 ---
 
